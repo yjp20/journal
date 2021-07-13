@@ -1,0 +1,122 @@
+<script>
+	import { api } from '$lib/api';
+	import { session } from '$app/stores';
+
+	import Tag from '$lib/Tag.svelte';
+	import IconButton from '$lib/IconButton.svelte';
+	import TodoEdit from '$lib/TodoEdit.svelte';
+	import Checkbox from '$lib/Checkbox.svelte';
+
+	import editIcon from '$lib/icons/edit.svg';
+	import cartIcon from '$lib/icons/shopping-cart.svg';
+	import deleteIcon from '$lib/icons/trash.svg';
+
+	export let todo;
+	export let todos;
+	export let edit = undefined;
+
+	function startEdit() {
+		edit = todo.id;
+	}
+
+	async function todoDelete() {
+		await api('DELETE', fetch, $session, `todo/${todo.id}`);
+		todos = todos.filter((v) => v.id != todo.id);
+	}
+
+	async function todoToggleComplete(e) {
+		todo.completed = e.currentTarget.checked;
+		todo.cart = false;
+		todo.completed_date = todo.completed ? new Date() : null;
+		await api('PUT', fetch, $session, `todo/${todo.id}`, todo);
+	}
+
+	async function todoCart() {
+		todo.cart = todo.cart ? false : true;
+		await api('PUT', fetch, $session, `todo/${todo.id}`, todo);
+	}
+</script>
+
+<div class="todo" class:is-editing={edit === todo.id} class:is-completed={todo.completed}>
+	{#if edit === todo.id}
+		<div class="todoedit box">
+			<TodoEdit {todo} bind:edit />
+		</div>
+	{:else}
+		<div class="todo-toggle">
+			<Checkbox
+				description="Mark todo as {todo.completed ? 'not done' : 'done'}"
+				checked={todo.completed}
+				on:change={todoToggleComplete}
+			/>
+		</div>
+		<div class="todo-display">{todo.description}</div>
+		<div class="todo-tags">
+			{#if !todo.completed && todo.due_date}
+				<Tag
+					value={new Date(todo.due_date)}
+					fg={new Date(todo.due_date) < new Date() ? 'var(--red)' : 'black'}
+				/>
+			{/if}
+			{#if todo.completed && todo.completed_date}
+				<Tag value={new Date(todo.completed_date)} />
+			{/if}
+		</div>
+		<div class="todo-actions">
+			<IconButton on:click={startEdit} icon={editIcon} description="Edit todo" />
+			<IconButton
+				on:click={() => todoDelete(todo.id)}
+				icon={deleteIcon}
+				description="Delete todo"
+			/>
+			{#if !todo.completed}
+				<IconButton on:click={todoCart} icon={cartIcon} description="Cart todo" />
+			{/if}
+		</div>
+	{/if}
+</div>
+
+<style>
+	.todo {
+		display: flex;
+		width: 100%;
+	}
+
+	.todo.is-completed {
+		opacity: 0.5;
+	}
+
+	.todo-toggle {
+		margin-top: 0.1em;
+	}
+
+	.todo-display {
+		padding: 1px;
+		margin: -1px;
+		margin-left: 0.25em;
+	}
+
+	.todo-tags {
+		margin-left: 0.25rem;
+	}
+
+	.todo-actions {
+		margin-left: auto;
+		opacity: 0;
+		margin-top: -0.25em;
+	}
+
+	.todo:hover .todo-actions {
+		opacity: 1;
+	}
+
+	.todo:hover .todo-display {
+		background-color: var(--blue-light);
+		border-radius: 5px;
+	}
+
+	.todoedit {
+		width: 100%;
+		margin: 0.5em 0;
+	}
+</style>

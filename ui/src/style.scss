@@ -1,0 +1,14 @@
+$title-size: 1.5rem;
+$subtitle-size: 1.25rem;
+$breakpoint-gap: 32px;
+
+$breakpoints:   (
+	"big": 900px,
+);
+
+$container-override: (
+	"big": 600px,
+);
+
+@import "briefscss/src/init.scss";
+@import "briefscss/src/main.scss";
