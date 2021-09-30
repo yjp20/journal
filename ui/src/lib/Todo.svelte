@@ -7,9 +7,9 @@
 	import TodoEdit from '$lib/TodoEdit.svelte';
 	import Checkbox from '$lib/Checkbox.svelte';
 
-	import editIcon from '$lib/icons/edit.svg';
-	import cartIcon from '$lib/icons/shopping-cart.svg';
-	import deleteIcon from '$lib/icons/trash.svg';
+	import EditIcon from '$lib/icons/edit.svelte';
+	import CartIcon from '$lib/icons/shopping-cart.svelte';
+	import DeleteIcon from '$lib/icons/trash.svelte';
 
 	export let todo;
 	export let todos;
@@ -63,14 +63,12 @@
 			{/if}
 		</div>
 		<div class="todo-actions">
-			<IconButton on:click={startEdit} icon={editIcon} description="Edit todo" />
-			<IconButton
-				on:click={() => todoDelete(todo.id)}
-				icon={deleteIcon}
-				description="Delete todo"
-			/>
+			<IconButton on:click={startEdit} description="Edit todo"><EditIcon /></IconButton>
+			<IconButton on:click={() => todoDelete(todo.id)} description="Delete todo">
+				<DeleteIcon />
+			</IconButton>
 			{#if !todo.completed}
-				<IconButton on:click={todoCart} icon={cartIcon} description="Cart todo" />
+				<IconButton on:click={todoCart} description="Cart todo"><CartIcon /></IconButton>
 			{/if}
 		</div>
 	{/if}

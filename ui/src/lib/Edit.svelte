@@ -21,8 +21,8 @@
 <script>
 	import IconButton from '$lib/IconButton.svelte';
 	import Tag from './Tag.svelte';
-	import saveIcon from '$lib/icons/save.svg';
-	import cancelIcon from '$lib/icons/x.svg';
+	import SaveIcon from '$lib/icons/save.svelte';
+	import CancelIcon from '$lib/icons/x.svelte';
 
 	export let text;
 	export let placeholder = undefined;
@@ -47,9 +47,9 @@
 			{/if}
 		</div>
 		{#if cancel}
-			<IconButton type="button" on:click={cancel} description={'Cancel'} icon={cancelIcon} />
+			<IconButton type="button" on:click={cancel} description={'Cancel'}><CancelIcon /></IconButton>
 		{/if}
-		<IconButton description={'Create'} icon={saveIcon} />
+		<IconButton description={'Create'}><SaveIcon /></IconButton>
 	</div>
 </form>
 

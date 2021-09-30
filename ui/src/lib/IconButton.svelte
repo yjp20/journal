@@ -1,11 +1,11 @@
 <script>
-	export let icon;
 	export let description;
 	export let type = undefined;
+	export let active = false;
 </script>
 
-<button on:click class="icon-button" aria-label={description} {type}>
-	<img src={icon} alt={description} />
+<button on:click class="icon-button" class:is-active={active} aria-label={description} {type}>
+	<slot />
 </button>
 
 <style>
@@ -24,8 +24,14 @@
 		background-color: #f3f3f3;
 	}
 
-	.icon-button > img {
+	.icon-button > :global(svg) {
+		width: 1em;
 		height: 1em;
 		display: block;
+	}
+
+	.icon-button.is-active {
+		color: white;
+		background-color: black;
 	}
 </style>

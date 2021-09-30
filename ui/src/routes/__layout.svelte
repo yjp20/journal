@@ -13,19 +13,21 @@
 <script>
 	import { session } from '$app/stores';
 	import { api, NetworkError } from '$lib/api';
-	import "../style.scss";
+	import '../style.scss';
 
 	let password = '';
 	let passwordError = '';
 	let checkMessage = '';
 
-	async function login() {
+	async function login(e) {
+		e.preventDefault();
 		const hashed = await hash(password);
-		Cookies.set('token', hashed);
+		Cookies.set('token', hashed, { domain: import.meta.env.VITE_API_ROOT });
 		try {
 			await api('POST', fetch, $session, 'token');
 			$session.token = hashed;
 			passwordError = '';
+			checkMessage = '';
 		} catch (e) {
 			if (e instanceof NetworkError) passwordError = 'Network error';
 			else passwordError = 'Invalid password';
@@ -55,18 +57,29 @@
 				<li class="sidenav-item"><a href="/todos">todos</a></li>
 				<li class="sidenav-item"><a href="/media">media</a></li>
 				<li class="sidenav-item"><a href="/feed">feed</a></li>
+				<li class="sidenav-item"><a href="/graph">graph</a></li>
 			</ul>
 		</nav>
-		<div class="login box is-vertical" class:is-loggedin={Boolean($session.token)}>
-			{#if $session.token}
+		{#if $session.token}
+			<form
+				class="login box is-vertical"
+				class:is-loggedin={Boolean($session.token)}
+				on:submit={check}
+			>
 				<p class="paragraph">Logged in!</p>
 				<p class="paragraph">
-					<button on:click={check} class="button is-white">Check</button>
+					<button class="button">Check</button>
 				</p>
 				{#if checkMessage}
 					<p class="label">{checkMessage}</p>
 				{/if}
-			{:else}
+			</form>
+		{:else}
+			<form
+				class="login box is-vertical"
+				class:is-loggedin={Boolean($session.token)}
+				on:submit={login}
+			>
 				<div class="field">
 					<label class="label" for="password">Password:</label>
 					<input class="input" name="password" type="password" bind:value={password} />
@@ -75,10 +88,10 @@
 					{/if}
 				</div>
 				<div class="field">
-					<button on:click={login} class="button is-white">Login</button>
+					<button class="button">Login</button>
 				</div>
-			{/if}
-		</div>
+			</form>
+		{/if}
 	</div>
 	<main class="container">
 		<slot />
@@ -86,13 +99,11 @@
 </div>
 
 <style>
-	:global(body) {
-		padding: 2rem 0;
-	}
-
 	.layout {
 		display: flex;
 		min-height: 100vh;
+		padding: 2rem 0;
+		box-sizing: border-box;
 	}
 
 	.side {

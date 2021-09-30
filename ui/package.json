@@ -1,14 +1,16 @@
 {
-  "name": "~TODO~",
+  "name": "journal-ui",
   "version": "0.0.1",
   "scripts": {
     "dev": "svelte-kit dev",
     "build": "svelte-kit build",
+    "build:production": "VITE_API_BASE='https://journal-api.youngjin.io/api' VITE_API_ROOT='.youngjin.io' svelte-kit build",
     "preview": "svelte-kit preview",
     "lint": "prettier --check --plugin-search-dir=. .",
     "format": "prettier --write --plugin-search-dir=. ."
   },
   "devDependencies": {
+    "@sveltejs/adapter-node": "^1.0.0-next.52",
     "@sveltejs/kit": "next",
     "prettier": "~2.2.1",
     "prettier-plugin-svelte": "^2.2.0",
@@ -23,6 +25,7 @@
     "briefscss": "^2.0.0",
     "chrono-node": "^2.2.6",
     "cookie": "^0.4.1",
+    "date-fns": "^2.23.0",
     "js-cookie": "^2.2.1"
   }
 }

@@ -26,7 +26,23 @@ CREATE TABLE IF NOT EXISTS todos (
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS feedsource {
+CREATE TABLE IF NOT EXISTS feed_sources (
 	id BIGSERIAL PRIMARY KEY NOT NULL,
+	description TEXT NOT NULL,
 	url TEXT NOT NULL
-};
+);
+
+CREATE TABLE IF NOT EXISTS feed_items (
+	id BIGSERIAL PRIMARY KEY NOT NULL,
+	description TEXT NOT NULL,
+	related_link TEXT NOT NULL,
+	media_type TEXT NOT NULL,
+	added BOOLEAN NOT NULL,
+	source_id BIGSERIAL,
+	post_date TIMESTAMP(0),
+
+	CONSTRAINT fk_source
+		FOREIGN KEY(source_id)
+			REFERENCES feed_sources(id)
+			ON DELETE SET NULL
+);

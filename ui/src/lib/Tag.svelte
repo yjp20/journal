@@ -8,7 +8,7 @@
 	{#if value instanceof Date}
 		{new Intl.DateTimeFormat('en-US').format(value)}
 	{:else}
-		{value}
+		{value.length > 20 ? `${value.substr(0,30)}...` : value}
 	{/if}
 </div>
 

@@ -144,7 +144,7 @@ func (m MediaModel) Update(media *Media) error {
 		SET
 			description = $1,
 			media_type = $2,
-			notes = $3,
+			rating = $3,
 			notes = $4,
 			related_link = $5,
 			cart = $6,

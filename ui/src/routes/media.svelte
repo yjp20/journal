@@ -21,8 +21,9 @@
 	let mediaList = initialMediaList;
 	let text = '';
 	let tags = {};
+	let linkCache = {};
 
-	const linkRegex = /https?:\/\/[.\/\-a-zA-Z0-9]*/;
+	const linkRegex = /https?:\/\/[.\/\-a-zA-Z0-9\_]*/;
 	const mediaTypes = [
 		[/:game/, 'game'],
 		[/:book/, 'book'],
@@ -47,6 +48,12 @@
 		text = '';
 	}
 
+	async function getLink(link) {
+		if (linkCache[link] !== undefined) return linkCache[link];
+		const res = await api('POST', fetch, $session, 'media/link', { link });
+		return linkCache[link] = res
+	}
+
 	async function getTags(text) {
 		const newTags = {};
 		newTags['media_type'] = {
@@ -62,7 +69,7 @@
 				start: matches.index,
 				end: matches.index + matches[0].length
 			};
-			const res = await api('POST', fetch, $session, 'media/link', { link: matches[0] });
+			const res = await getLink(matches[0]);
 			newTags['name'] = { value: res.name };
 			newTags['media_type'] = { value: res.media_type };
 		}
@@ -129,5 +136,9 @@
 
 	.media-wrapper:not(.is-completed) + .media-wrapper.is-completed {
 		margin-top: 1rem;
+	}
+
+	.media-wrapper + .media-wrapper {
+		margin-top: 0.25rem;
 	}
 </style>

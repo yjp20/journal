@@ -36,8 +36,10 @@ func main() {
 		DB:       db,
 		Password: *password,
 		Models: Models{
-			Todo:  &TodoModel{db},
-			Media: &MediaModel{db},
+			Todo:       &TodoModel{db},
+			Media:      &MediaModel{db},
+			FeedSource: &FeedSourceModel{db},
+			FeedItem:   &FeedItemModel{db},
 		},
 		Origins:  strings.Split(*cors, ","),
 		errorLog: errorLog,
@@ -55,6 +57,13 @@ func main() {
 	router.POST("/api/media", app.createMedia)
 	router.PUT("/api/media/:id", app.updateMedia)
 	router.DELETE("/api/media/:id", app.deleteMedia)
+
+	router.GET("/api/feedsource", app.listFeedSource)
+	router.POST("/api/feedsource", app.subscribeFeedSource)
+	router.DELETE("/api/feedsource/:id", app.unsubscribeFeedSource)
+
+	router.GET("/api/feed", app.getFeed)
+	router.POST("/api/feed/collect", app.collectFeed)
 
 	router.POST("/api/token", app.confirmToken)
 

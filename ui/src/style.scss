@@ -12,3 +12,7 @@ $container-override: (
 
 @import "briefscss/src/init.scss";
 @import "briefscss/src/main.scss";
+
+button {
+	font-size: 0.875rem;
+}

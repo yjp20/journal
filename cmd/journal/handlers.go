@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -14,20 +15,117 @@ import (
 
 /* Media Feed */
 
-func (a *App) listFeedSource() {
+func (a *App) listFeedSource(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	feedSources, err := a.Models.FeedSource.GetAll()
+	if err != nil {
+		a.serverErrorResponse(w, r, err)
+		return
+	}
 
+	err = a.writeJSON(w, 200, feedSources)
+	if err != nil {
+		a.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
-func (a *App) subscribeFeedSource() {
+func (a *App) subscribeFeedSource(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	authenticated, err := a.IsAuthenticated(r)
+	if !authenticated || err != nil {
+		a.unauthorizedResponse(w)
+		return
+	}
 
+	var input struct {
+		Description string
+		URL         string
+	}
+
+	err = a.readJSON(w, r, &input)
+	if err != nil {
+		a.badRequestResponse(w, err)
+		return
+	}
+
+	var feedSource FeedSource
+	feedSource.Description = input.Description
+	feedSource.URL = input.URL
+
+	err = a.Models.FeedSource.Insert(&feedSource)
+	if err != nil {
+		a.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = a.writeJSON(w, http.StatusCreated, feedSource)
+	if err != nil {
+		a.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
-func (a *App) unsubscribeFeedSource() {
+func (a *App) unsubscribeFeedSource(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	authenticated, err := a.IsAuthenticated(r)
 
+	if !authenticated || err != nil {
+		a.unauthorizedResponse(w)
+		return
+	}
+
+	idString := ps.ByName("id")
+	id, err := strconv.ParseInt(idString, 10, 64)
+	if err != nil {
+		a.notFoundResponse(w)
+		return
+	}
+
+	err = a.Models.FeedSource.Delete(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, ErrRecordNotFound):
+			a.notFoundResponse(w)
+		default:
+			a.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
-func (a *App) collectFeed() {
+func (a *App) getFeed(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	now := time.Now()
+	year, month, day := now.Date()
+	today := time.Date(year, month, day, 0, 0, 0, 0, now.Location())
+	startOfWeek := today.AddDate(0, 0, -int(today.Weekday()))
+	endOfWeek := startOfWeek.AddDate(0, 0, 7)
 
+	feedItems, err := a.Models.FeedItem.GetAll(startOfWeek, endOfWeek)
+	if err != nil {
+		a.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = a.writeJSON(w, 200, feedItems)
+	if err != nil {
+		a.serverErrorResponse(w, r, err)
+		return
+	}
+}
+
+func (a *App) collectFeed(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	authenticated, err := a.IsAuthenticated(r)
+
+	if !authenticated || err != nil {
+		a.unauthorizedResponse(w)
+		return
+	}
+
+	err = a.compileRSS()
+	if err != nil {
+		a.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 /* Media */
@@ -40,7 +138,7 @@ func (a *App) linkMedia(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 	}
 
 	var input struct {
-		Link        string `json:"link"`
+		Link string `json:"link"`
 	}
 
 	var output struct {
@@ -52,6 +150,16 @@ func (a *App) linkMedia(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 	if err != nil {
 		a.badRequestResponse(w, err)
 		return
+	}
+
+	output.MediaType = "articles"
+
+	if matched, _ := regexp.MatchString(`^https://myanimelist.net/anime`, input.Link); matched {
+		output.MediaType = "anime"
+	}
+
+	if matched, _ := regexp.MatchString(`^https://myanimelist.net/manga`, input.Link); matched {
+		output.MediaType = "manga"
 	}
 
 	switch {
@@ -69,8 +177,13 @@ func (a *App) linkMedia(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 			return
 		}
 
-		output.Name = doc.Find("title").Text()
-		output.MediaType = "articles"
+		h1Text := doc.Find("h1").Text()
+		titleText := doc.Find("title").Text()
+		if len(h1Text) > 0 {
+			output.Name = h1Text
+		} else {
+			output.Name = titleText
+		}
 	}
 
 	err = a.writeJSON(w, http.StatusOK, output)
