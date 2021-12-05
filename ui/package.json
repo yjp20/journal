@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "svelte-kit dev",
     "build": "svelte-kit build",
-    "build:production": "VITE_API_BASE='https://journal-api.youngjin.io/api' VITE_API_ROOT='.youngjin.io' svelte-kit build",
+    "build:production": "VITE_API_BASE='https://journal-api.youngjin.io/api' VITE_API_ROOT='.youngjin.io' npm run build",
     "preview": "svelte-kit preview",
     "lint": "prettier --check --plugin-search-dir=. .",
     "format": "prettier --write --plugin-search-dir=. ."

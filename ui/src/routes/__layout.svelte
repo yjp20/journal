@@ -13,6 +13,7 @@
 <script>
 	import { session } from '$app/stores';
 	import { api, NetworkError } from '$lib/api';
+	import { root } from '$lib/config';
 	import '../style.scss';
 
 	let password = '';
@@ -22,7 +23,7 @@
 	async function login(e) {
 		e.preventDefault();
 		const hashed = await hash(password);
-		Cookies.set('token', hashed, { domain: import.meta.env.VITE_API_ROOT });
+		Cookies.set('token', hashed, { domain: root });
 		try {
 			await api('POST', fetch, $session, 'token');
 			$session.token = hashed;
