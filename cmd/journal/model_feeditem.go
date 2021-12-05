@@ -20,10 +20,31 @@ type FeedItemModel struct {
 	DB *sql.DB
 }
 
+func (m FeedItemModel) Get(id int) (*FeedItem, error) {
+	query := `
+		SELECT
+			id,
+			description,
+			media_type,
+			related_link,
+			source_id,
+			post_date,
+			added
+		FROM feed_items
+		WHERE id = $1
+	`
+
+	f := &FeedItem{}
+	row := m.DB.QueryRow(query, id)
+	err := row.Scan(&f.ID, &f.Description, &f.MediaType, &f.RelatedLink, &f.SourceID, &f.PostDate, &f.PostDate)
+	return f, err
+}
+
 func (m FeedItemModel) Insert(feedItem *FeedItem) error {
 	query := `
 		INSERT INTO feed_items (description, media_type, related_link, source_id, post_date, added)
 		VALUES ($1, $2, $3, $4, $5, $6)
+		ON CONFLICT (related_link) DO NOTHING
 		RETURNING id`
 	return m.DB.QueryRow(query, feedItem.Description, feedItem.MediaType, feedItem.RelatedLink, feedItem.SourceID, feedItem.PostDate, feedItem.Added).Scan(&feedItem.ID)
 }

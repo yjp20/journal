@@ -3,9 +3,10 @@
 	import Media from '$lib/Media.svelte';
 
 	export async function load({ fetch, session }) {
+		const mediaListPromise = api('GET', fetch, session, 'media')
 		return {
 			props: {
-				initialMediaList: await api('GET', fetch, session, 'media')
+				mediaList: await mediaListPromise
 			}
 		};
 	}
@@ -16,11 +17,8 @@
 	import { session } from '$app/stores';
 	import Edit, { getStripped } from '$lib/Edit.svelte';
 
-	export let initialMediaList;
-
-	let mediaList = initialMediaList;
+	export let mediaList;
 	let text = '';
-	let tags = {};
 	let linkCache = {};
 
 	const linkRegex = /https?:\/\/[.\/\-a-zA-Z0-9\_]*/;
@@ -33,12 +31,12 @@
 		[/:anime/, 'anime']
 	];
 
-	async function newMedia(e) {
+	async function createMedia(e) {
 		e.preventDefault();
 		const tags = await tagsPromise;
 		if (!text) return;
 		let media = {
-			description: getStripped(text, tags) || (tags["name"] && tags["name"].value),
+			description: (tags["name"] && tags["name"].value) || getStripped(text, tags),
 			related_link: tags["link"] && tags["link"].value,
 			media_type: tags["media_type"] && tags['media_type'].value
 		};
@@ -48,10 +46,10 @@
 		text = '';
 	}
 
-	async function getLink(link) {
+	async function getLinkMetadata(link) {
 		if (linkCache[link] !== undefined) return linkCache[link];
-		const res = await api('POST', fetch, $session, 'media/link', { link });
-		return linkCache[link] = res
+		return linkCache[link] =
+			await api('POST', fetch, $session, 'media/link', { link })
 	}
 
 	async function getTags(text) {
@@ -69,7 +67,7 @@
 				start: matches.index,
 				end: matches.index + matches[0].length
 			};
-			const res = await getLink(matches[0]);
+			const res = await getLinkMetadata(matches[0]);
 			newTags['name'] = { value: res.name };
 			newTags['media_type'] = { value: res.media_type };
 		}
@@ -89,10 +87,6 @@
 	}
 
 	$: tagsPromise = getTags(text);
-	$: (async () => {
-		tags = await tagsPromise;
-	})();
-
 	$: sorted = mediaList.sort((a, b) => {
 		if (a.completed !== b.completed) return a.completed - b.completed;
 		if (a.completed_date !== b.completed_date)
@@ -108,12 +102,14 @@
 </script>
 
 <h1 class="title">media</h1>
-<div class="medianew">
-	<Edit placeholder="New media" on:submit={newMedia} bind:text {tags} />
+<div class="mediaadd">
+	<Edit placeholder="Add media" on:submit={createMedia} bind:text {tagsPromise} />
 </div>
+
 {#if sorted.length > 0 && !sorted[0].cart}
-	<p class="paragraph">No media in cart</p>
+	<p class="paragraph"><em>No media in cart</em></p>
 {/if}
+
 {#each sorted as media (media.id)}
 	<div
 		animate:flip={{ duration: 100 }}
@@ -126,7 +122,7 @@
 {/each}
 
 <style>
-	.medianew {
+	.mediaadd {
 		margin-bottom: 1.5em;
 	}
 

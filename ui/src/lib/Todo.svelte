@@ -89,8 +89,6 @@
 	}
 
 	.todo-display {
-		padding: 1px;
-		margin: -1px;
 		margin-left: 0.25em;
 	}
 
@@ -99,9 +97,10 @@
 	}
 
 	.todo-actions {
+		display: flex;
 		margin-left: auto;
 		opacity: 0;
-		margin-top: -0.25em;
+		align-self: flex-start;
 	}
 
 	.todo:hover .todo-actions {
@@ -109,8 +108,7 @@
 	}
 
 	.todo:hover .todo-display {
-		background-color: var(--blue-light);
-		border-radius: 5px;
+		text-decoration: underline;
 	}
 
 	.todoedit {

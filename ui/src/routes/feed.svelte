@@ -1,27 +1,34 @@
 <script context="module">
 	import { api } from '$lib/api';
 
-	export async function load({ fetch, session }) {
+	export async function load({ fetch, page, session }) {
+		const dateString = page.query.get("date")
+		const date = dateString ? new Date(dateString) : new Date()
+		const feedItemPromise = api('GET', fetch, session, 'feed', { end: date.toISOString() })
+		const feedSourcesPromise = api('GET', fetch, session, 'feedsource')
 		return {
 			props: {
-				initialDate: new Date(),
-				initialFeedItems: await api('GET', fetch, session, 'feed'),
-				initialFeedSources: await api('GET', fetch, session, 'feedsource')
+				date: date,
+				feedItems: await feedItemPromise,
+				feedSources: await feedSourcesPromise
 			}
 		};
 	}
 </script>
 
 <script>
-	import { startOfWeek, endOfWeek, isSameWeek, addWeeks } from 'date-fns';
+	import { startOfDay, startOfWeek, endOfWeek, isSameWeek, addWeeks } from 'date-fns';
+	import { goto } from '$app/navigation';
 	import { session } from '$app/stores';
 	import FeedSource from '$lib/FeedSource.svelte';
 	import IconButton from '$lib/IconButton.svelte';
 	import AddIcon from "$lib/icons/plus.svelte";
 
-	export let initialDate;
-	export let initialFeedItems;
-	export let initialFeedSources;
+	export let date;
+	export let feedItems;
+	export let feedSources;
+
+	let showSources = false
 
 	const dateFormat = new Intl.DateTimeFormat('en-US', {
 		year: 'numeric',
@@ -29,20 +36,26 @@
 		day: 'numeric'
 	});
 
-	let selectedDate = initialDate;
-	let feedItems = initialFeedItems;
-	let showSources = false;
-
 	const today = new Date();
-	const lastWeek = addWeeks(new Date(), -1);
-
-	async function collect() {
-		await api('POST', fetch, $session, 'feed/collect');
-	}
+	const lastWeek = startOfDay(addWeeks(new Date(), -1));
 
 	function selectOther() {
 		const ans = prompt('enter date as format MM/DD/YYYY', '');
-		selectedDate = new Date(ans);
+		const date = new Date(ans);
+		goto(formatDateLink(date))
+	}
+
+	function formatDateLink(date) {
+		return `/feed?date=${encodeURIComponent(date.toISOString())}`
+	}
+
+	function getHostname(url) {
+		const o = new URL(url)
+		return o.hostname
+	}
+
+	async function addToFeed(id) {
+		await api("POST", fetch, $session, "feedsource/add", { id });
 	}
 </script>
 
@@ -51,19 +64,21 @@
 <div class="feed-header">
 	<div class="date-controls">
 		<div class="date-display">
-			{dateFormat.format(startOfWeek(selectedDate))} - {dateFormat.format(endOfWeek(selectedDate))}
+			{dateFormat.format(startOfWeek(date))} - {dateFormat.format(endOfWeek(date))}
 		</div>
 		<div>
-			<button
-				class="button"
-				class:is-blue={isSameWeek(today, selectedDate)}
-				on:click={() => (selectedDate = today)}>this week</button
-			>
-			<button
-				class="button"
-				class:is-blue={isSameWeek(lastWeek, selectedDate)}
-				on:click={() => (selectedDate = lastWeek)}>last week</button
-			>
+			<a
+				href="/feed"
+				class="no-link button"
+				class:is-blue={isSameWeek(today, date)}>
+				this week
+			</a>
+			<a
+				href={formatDateLink(lastWeek)}
+				class="no-link button"
+				class:is-blue={isSameWeek(lastWeek, date)}>
+				last week
+			</a>
 			<button class="button" on:click={selectOther}>other</button>
 		</div>
 	</div>
@@ -72,22 +87,24 @@
 	</button>
 </div>
 
-{#each feedItems as feedItem}
-	<div class="feeditem">
-		<div class="feeditem-content">
-			<div class="feeditem-display">{feedItem.description}</div>
-			<div class="feeditem-meta">
-				{#if feedItem.post_date}{feedItem.post_date} - {/if}{feedItem.related_link}
+{#await feedItems then items}
+	{#each items as feedItem}
+		<div class="feeditem">
+			<div class="feeditem-content">
+				<a href={feedItem.related_link} class="feeditem-display">
+					{feedItem.description}{" "}
+					<span class="feeditem-meta">({getHostname(feedItem.related_link)})</span>
+				</a>
+			</div>
+			<div class="feeditem-actions">
+				<IconButton on:click={() => addToFeed(feedItem.id)}><AddIcon /></IconButton>
 			</div>
 		</div>
-		<div class="feeditem-actions">
-			<IconButton><AddIcon /></IconButton>
-		</div>
-	</div>
-{/each}
+	{/each}
+{/await}
 
 {#if showSources}
-	<FeedSource on:exit={() => (showSources = false)} feedSources={initialFeedSources} />
+	<FeedSource on:exit={() => (showSources = false)} feedSources={feedSources} />
 {/if}
 
 <style>
@@ -109,9 +126,15 @@
 	}
 
 	.feeditem-content {
-		display: flex;
-		flex-direction: column;
-		align-items: start;
+		display: block;
+	}
+
+	.feeditem-display {
+		color: var(--black);
+	}
+
+	.feeditem:hover .feeditem-display {
+		text-decoration: underline;
 	}
 
 	.feeditem-meta {
@@ -122,13 +145,6 @@
 	.feeditem-actions {
 		margin-left: auto;
 		visibility: hidden;
-	}
-
-	.feeditem:hover .feeditem-display {
-		margin: -1px;
-		padding: 1px;
-		background-color: var(--blue-light);
-		border-radius: 5px;
 	}
 
 	.feeditem:hover .feeditem-actions {

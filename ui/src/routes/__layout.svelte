@@ -53,7 +53,7 @@
 		<h1><b>journal</b></h1>
 		<nav>
 			<ul class="sidenav">
-				<li class="sidenav-item"><a href="/dashboard">dashboard</a></li>
+				<li class="sidenav-item"><a href="/">dashboard</a></li>
 				<li class="sidenav-item"><a href="/todos">todos</a></li>
 				<li class="sidenav-item"><a href="/media">media</a></li>
 				<li class="sidenav-item"><a href="/feed">feed</a></li>
@@ -99,6 +99,10 @@
 </div>
 
 <style>
+	:global(body) {
+		line-height: 1.5;
+	}
+
 	.layout {
 		display: flex;
 		min-height: 100vh;
@@ -113,12 +117,8 @@
 	}
 
 	.sidenav {
-		margin-top: 1rem;
+		margin-top: 0.5rem;
 		margin-bottom: 1rem;
-	}
-
-	.sidenav-item {
-		margin-bottom: 0.25rem;
 	}
 
 	.sidenav-item a {

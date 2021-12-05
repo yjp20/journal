@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS feed_sources (
 CREATE TABLE IF NOT EXISTS feed_items (
 	id BIGSERIAL PRIMARY KEY NOT NULL,
 	description TEXT NOT NULL,
-	related_link TEXT NOT NULL,
+	related_link TEXT NOT NULL UNIQUE,
 	media_type TEXT NOT NULL,
 	added BOOLEAN NOT NULL,
 	source_id BIGSERIAL,

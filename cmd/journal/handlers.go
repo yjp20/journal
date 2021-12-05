@@ -94,13 +94,25 @@ func (a *App) unsubscribeFeedSource(w http.ResponseWriter, r *http.Request, ps h
 }
 
 func (a *App) getFeed(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	now := time.Now()
-	year, month, day := now.Date()
-	today := time.Date(year, month, day, 0, 0, 0, 0, now.Location())
-	startOfWeek := today.AddDate(0, 0, -int(today.Weekday()))
-	endOfWeek := startOfWeek.AddDate(0, 0, 7)
+	var input struct {
+		Start *time.Time `json:"start"`
+		End   *time.Time `json:"end"`
+	}
 
-	feedItems, err := a.Models.FeedItem.GetAll(startOfWeek, endOfWeek)
+	qs := r.URL.Query()
+	input.Start, _ = a.readOptionalTime(qs, "start")
+	input.End, _ = a.readOptionalTime(qs, "start")
+
+	var start, end time.Time
+	if input.End == nil {
+		end = time.Now()
+	}
+
+	if input.Start == nil {
+		start = end.AddDate(0, 0, -7)
+	}
+
+	feedItems, err := a.Models.FeedItem.GetAll(start, end)
 	if err != nil {
 		a.serverErrorResponse(w, r, err)
 		return
@@ -126,6 +138,32 @@ func (a *App) collectFeed(w http.ResponseWriter, r *http.Request, ps httprouter.
 		a.serverErrorResponse(w, r, err)
 		return
 	}
+}
+
+func (a *App) addToMedia(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	authenticated, err := a.IsAuthenticated(r)
+
+	if !authenticated || err != nil {
+		a.unauthorizedResponse(w)
+		return
+	}
+
+	var input struct {
+		ID int `json:"id"`
+	}
+
+	err = a.readJSON(w, r, &input)
+	if err != nil {
+		a.badRequestResponse(w, err)
+		return
+	}
+
+	feedItem, err := a.Models.FeedItem.Get(input.ID)
+	a.Models.Media.Insert(&Media{
+		Description: feedItem.Description,
+		MediaType:   feedItem.MediaType,
+		RelatedLink: feedItem.RelatedLink,
+	})
 }
 
 /* Media */

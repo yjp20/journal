@@ -5,26 +5,45 @@ export class NetworkError extends Error {}
 export async function api(method, fetch, session, resource, data) {
 	let res;
 	try {
-		res = await fetch(`${base}/${resource}`, {
-			credentials: 'include',
-			method: method,
-			body: data !== undefined ? JSON.stringify(data) : undefined,
-			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json',
-				Cookie: session.isSSR && session.token ? `token=${session.token}` : undefined
-			}
-		});
-		if (!res.ok) throw new Error()
-	} catch {
+		if (method == 'GET') {
+			const params = new URLSearchParams(data);
+			const queryString = data ? `?${params.toString()}` : "";
+			res = await fetch(`${base}/${resource}${queryString}`, {
+				credentials: 'include',
+				method: method,
+				headers: {
+					Accept: 'application/json',
+					Cookie: session.isSSR && session.token ? `token=${session.token}` : undefined
+				}
+			});
+		} else {
+			res = await fetch(`${base}/${resource}`, {
+				credentials: 'include',
+				method: method,
+				body: data !== undefined ? JSON.stringify(data) : undefined,
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					Cookie: session.isSSR && session.token ? `token=${session.token}` : undefined
+				}
+			});
+		}
+	} catch (e) {
+		console.error(e)
 		throw new NetworkError();
 	}
 
-	try {
-		const v = await res.json();
-		if (!res.ok) {
-			throw new Error(v.error);
+	if (!res.ok) {
+		throw new Error(v.error);
+	}
+
+	if (method.toLowerCase() !== "delete") {
+		let v;
+		try {
+			v = await res.json();
+		} catch (e) {
+			throw new Error(`couldn't parse response as json`);
 		}
 		return v;
-	} catch {}
+	}
 }

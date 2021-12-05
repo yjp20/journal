@@ -133,14 +133,14 @@
 	}
 
 	.media-content {
-		display: flex;
-		flex-wrap: wrap;
+		display: block;
 	}
 
 	.media-actions {
+		display: flex;
 		margin-left: auto;
 		opacity: 0;
-		margin-top: -0.25em;
+		align-self: flex-start;
 	}
 
 	.media:hover .media-actions {
@@ -148,14 +148,12 @@
 	}
 
 	.media-display {
-		padding: 1px;
-		margin: -1px;
+		display: inline;
 		margin-left: 0.25em;
 	}
 
 	.media:hover .media-display {
-		border-radius: 5px;
-		background: var(--blue-light);
+		text-decoration: underline;
 	}
 
 	.button-group {
@@ -164,7 +162,6 @@
 	}
 
 	.media-header {
-		display: flex;
 		margin-bottom: 1em;
 		justify-content: space-between;
 	}

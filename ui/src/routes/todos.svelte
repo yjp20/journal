@@ -42,7 +42,7 @@
 	<TodoEdit bind:todos />
 </div>
 {#if sorted.length > 0 && !sorted[0].cart}
-	<p class="paragraph">No todos in cart</p>
+	<p class="paragraph"><em>No todos in cart</em></p>
 {/if}
 {#each sorted as todo (todo.id)}
 	<div

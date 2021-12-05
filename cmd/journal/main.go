@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
 	_ "github.com/lib/pq"
@@ -60,6 +61,7 @@ func main() {
 
 	router.GET("/api/feedsource", app.listFeedSource)
 	router.POST("/api/feedsource", app.subscribeFeedSource)
+	router.POST("/api/feedsource/add", app.addToMedia)
 	router.DELETE("/api/feedsource/:id", app.unsubscribeFeedSource)
 
 	router.GET("/api/feed", app.getFeed)
@@ -77,6 +79,7 @@ func main() {
 	}
 
 	infoLog.Printf("Starting server on %s", *addr)
+	go app.collectTimer()
 	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
 }
@@ -102,4 +105,13 @@ func (a *App) enableCORS(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (a *App) collectTimer() {
+	a.compileRSS()
+	a.syncReadableMedia()
+	for range time.Tick(30 * time.Minute) {
+		a.compileRSS()
+		a.syncReadableMedia()
+	}
 }

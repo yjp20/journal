@@ -8,6 +8,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
+	"time"
 )
 
 type App struct {
@@ -31,11 +33,13 @@ func (app *App) writeJSON(w http.ResponseWriter, status int, data interface{}) e
 
 func (app *App) readJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	maxBytes := 1_048_576
-	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
-	dec := json.NewDecoder(r.Body)
+	return app.parseJSON(http.MaxBytesReader(w, r.Body, int64(maxBytes)), dst)
+}
+
+func (app *App) parseJSON(reader io.Reader, dst interface{}) error {
+	dec := json.NewDecoder(reader)
 	dec.DisallowUnknownFields()
 	err := dec.Decode(dst)
-
 	if err != nil {
 		var syntaxError *json.SyntaxError
 		var unmarshalTypeError *json.UnmarshalTypeError
@@ -65,4 +69,15 @@ func (app *App) readJSON(w http.ResponseWriter, r *http.Request, dst interface{}
 	}
 
 	return nil
+}
+
+func (app *App) readOptionalTime(qs url.Values, key string) (*time.Time, error) {
+	s := qs.Get(key)
+
+	if s == "" {
+		return nil, nil
+	}
+
+	t, err := time.Parse(time.RFC3339, s)
+	return &t, err
 }

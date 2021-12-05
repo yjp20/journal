@@ -1,17 +1,17 @@
 <script context="module">
 	export function getStripped(text, tags) {
 		if (tags === undefined) return text;
-		const arr = text.split('');
+		const chars = text.split('');
 
 		for (let tag of Object.values(tags)) {
 			if (tag.start !== undefined && tag.end !== undefined && tag.start < tag.end) {
 				for (let i = tag.start; i < tag.end; i++) {
-					arr[i] = undefined;
+					chars[i] = undefined;
 				}
 			}
 		}
 
-		return arr
+		return chars
 			.filter((v) => v !== undefined)
 			.join('')
 			.trim();
@@ -26,7 +26,7 @@
 
 	export let text;
 	export let placeholder = undefined;
-	export let tags = undefined;
+	export let tagsPromise = undefined;
 	export let cancel = undefined;
 	export let fg = {};
 	export let bg = {};
@@ -36,14 +36,16 @@
 	<input class="edit-text" {placeholder} bind:value={text} />
 	<div class="edit-controls">
 		<div class="edit-tags">
-			{#if tags !== undefined}
-				{#if Object.keys(tags).length > 0}
-					{#each Object.entries(tags) as tag}
-						<Tag fg={fg[tag[0]]} bg={bg[tag[0]]} value={tag[1].value} />
-					{/each}
-				{:else}
-					<Tag fg="#777" bg="#ccc" value="No Tags" />
-				{/if}
+			{#if tagsPromise !== undefined}
+				{#await tagsPromise}
+					Loading
+				{:then tags}
+					{#if Object.keys(tags).length > 0}
+						{#each Object.entries(tags) as tag}
+							<Tag fg={fg[tag[0]]} bg={bg[tag[0]]} value={tag[1].value} />
+						{/each}
+					{/if}
+				{/await}
 			{/if}
 		</div>
 		{#if cancel}
