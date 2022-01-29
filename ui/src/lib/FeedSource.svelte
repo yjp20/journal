@@ -1,26 +1,26 @@
 <script>
 	'@hmr:keep-all'
 
-	import IconButton from '$lib/IconButton.svelte';
-	import Modal from '$lib/Modal.svelte';
-	import { api } from '$lib/api';
-	import { session } from '$app/stores';
-	import DeleteIcon from '$lib/icons/trash.svelte';
+	import IconButton from '$lib/IconButton.svelte'
+	import Modal from '$lib/Modal.svelte'
+	import { api } from '$lib/api'
+	import { session } from '$app/stores'
+	import DeleteIcon from '$lib/icons/trash.svelte'
 
-	export let feedSources;
+	export let feedSources
 
-	let description = '';
-	let url = '';
+	let description = ''
+	let url = ''
 
 	async function subscribeSourceFeed(e) {
-		e.preventDefault();
-		const source = await api('POST', fetch, session, 'feedsource', { description, url });
-		feedSources = [...feedSources, source];
+		e.preventDefault()
+		const source = await api('POST', fetch, session, 'feedsource', { description, url })
+		feedSources = [...feedSources, source]
 	}
 
 	async function unsubscribeSourceFeed(id) {
-		await api('DELETE', fetch, session, `feedsource/${id}`);
-		feedSources = feedSources.filter(e => e.id != id);
+		await api('DELETE', fetch, session, `feedsource/${id}`)
+		feedSources = feedSources.filter((e) => e.id != id)
 	}
 </script>
 
@@ -36,6 +36,7 @@
 		</div>
 	{/each}
 	<form class="newfeedsource box is-vertical" on:submit={subscribeSourceFeed}>
+		<h3 class="subtitle">add source</h3>
 		<div class="field">
 			<label class="label" for="description">source description</label>
 			<input description="description" bind:value={description} />
@@ -71,10 +72,7 @@
 	}
 
 	.feedsource:hover .feedsource-description {
-		margin: -1px;
-		padding: 1px;
-		background-color: var(--blue-light);
-		border-radius: 5px;
+		text-decoration: underline;
 	}
 
 	.feedsource:hover .feedsource-remove {

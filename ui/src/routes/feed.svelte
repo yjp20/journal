@@ -41,8 +41,13 @@
 
 	function selectOther() {
 		const ans = prompt('enter date as format MM/DD/YYYY', '');
-		const date = new Date(ans);
-		goto(formatDateLink(date))
+		if (ans == null) return
+		try {
+			const date = new Date(ans);
+			goto(formatDateLink(date))
+		} catch (e) {
+			alert("Bad date format")
+		}
 	}
 
 	function formatDateLink(date) {

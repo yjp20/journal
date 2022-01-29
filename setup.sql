@@ -2,12 +2,13 @@ CREATE TABLE IF NOT EXISTS media (
 	id BIGSERIAL PRIMARY KEY NOT NULL,
 	description TEXT NOT NULL,
 	media_type TEXT NOT NULL,
-	rating FLOAT,
-	notes TEXT,
-	related_link TEXT,
 	cart BOOLEAN NOT NULL,
 	completed BOOLEAN NOT NULL,
 	progress FLOAT NOT NULL,
+
+	rating FLOAT,
+	notes TEXT,
+	related_link TEXT,
 	completed_date TIMESTAMP(0),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -20,6 +21,8 @@ CREATE TABLE IF NOT EXISTS todos (
 	cart BOOLEAN NOT NULL,
 	completed BOOLEAN NOT NULL,
 	progress FLOAT NOT NULL,
+
+	recur TEXT,
 	due_date TIMESTAMP(0),
 	completed_date TIMESTAMP(0),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

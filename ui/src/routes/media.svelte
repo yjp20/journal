@@ -103,7 +103,7 @@
 
 <h1 class="title">media</h1>
 <div class="mediaadd">
-	<Edit placeholder="Add media" on:submit={createMedia} bind:text {tagsPromise} />
+	<Edit placeholder="Media description or url" on:submit={createMedia} bind:text {tagsPromise} />
 </div>
 
 {#if sorted.length > 0 && !sorted[0].cart}

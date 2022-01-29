@@ -1,60 +1,60 @@
 <script>
-	import { api } from '$lib/api';
-	import { session } from '$app/stores';
+	import { api } from '$lib/api'
+	import { session } from '$app/stores'
 
-	import Modal from '$lib/Modal.svelte';
-	import Tag from '$lib/Tag.svelte';
-	import IconButton from '$lib/IconButton.svelte';
-	import Checkbox from '$lib/Checkbox.svelte';
+	import Modal from '$lib/Modal.svelte'
+	import Tag from '$lib/Tag.svelte'
+	import IconButton from '$lib/IconButton.svelte'
+	import Checkbox from '$lib/Checkbox.svelte'
 
-	import EditIcon from '$lib/icons/edit.svelte';
-	import DeleteIcon from '$lib/icons/trash.svelte';
-	import CartIcon from '$lib/icons/shopping-cart.svelte';
-	import BadIcon from '$lib/icons/thumbs-down.svelte';
-	import OkIcon from '$lib/icons/archive.svelte';
-	import GoodIcon from '$lib/icons/thumbs-up.svelte';
-	import GreatIcon from '$lib/icons/award.svelte';
+	import EditIcon from '$lib/icons/edit.svelte'
+	import DeleteIcon from '$lib/icons/trash.svelte'
+	import CartIcon from '$lib/icons/shopping-cart.svelte'
+	import BadIcon from '$lib/icons/thumbs-down.svelte'
+	import OkIcon from '$lib/icons/archive.svelte'
+	import GoodIcon from '$lib/icons/thumbs-up.svelte'
+	import GreatIcon from '$lib/icons/award.svelte'
 
-	export let mediaList;
-	export let media;
+	export let mediaList
+	export let media
 
-	let notes = media.notes;
-	let showEditModal = false;
+	let notes = media.notes
+	let showEditModal = false
 
 	async function mediaDelete() {
-		await api('DELETE', fetch, $session, `media/${media.id}`);
-		mediaList = mediaList.filter((v) => v.id != media.id);
+		await api('DELETE', fetch, $session, `media/${media.id}`)
+		mediaList = mediaList.filter((v) => v.id != media.id)
 	}
 
 	async function mediaToggleComplete(e) {
-		media.completed = e.currentTarget.checked;
-		media.cart = false;
-		media.completed_date = media.completed ? new Date() : null;
-		await api('PUT', fetch, $session, `media/${media.id}`, media);
+		media.completed = e.currentTarget.checked
+		media.cart = false
+		media.completed_date = media.completed ? new Date() : null
+		await api('PUT', fetch, $session, `media/${media.id}`, media)
 	}
 
 	async function mediaCart() {
-		media.cart = media.cart ? false : true;
-		await api('PUT', fetch, $session, `media/${media.id}`, media);
+		media.cart = media.cart ? false : true
+		await api('PUT', fetch, $session, `media/${media.id}`, media)
 	}
 
 	async function mediaNotes() {
-		media.notes = notes;
-		await api('PUT', fetch, $session, `media/${media.id}`, media);
+		media.notes = notes
+		await api('PUT', fetch, $session, `media/${media.id}`, media)
 	}
 
 	function mediaEdit() {
-		showEditModal = true;
+		showEditModal = true
 	}
 
 	function mediaCancel() {
-		notes = media.notes;
-		showEditModal = false;
+		notes = media.notes
+		showEditModal = false
 	}
 
 	async function setRating(rating) {
-		media.rating = media.rating !== rating ? rating : null;
-		await api('PUT', fetch, $session, `media/${media.id}`, media);
+		media.rating = media.rating !== rating ? rating : null
+		await api('PUT', fetch, $session, `media/${media.id}`, media)
 	}
 </script>
 
@@ -101,14 +101,21 @@
 </div>
 
 {#if showEditModal}
-	<Modal on:exit={() => showEditModal = false}>
+	<Modal on:exit={() => (showEditModal = false)}>
 		<div class="media-header">
 			<p class="subtitle is-flat">{media.description}</p>
 			<div class="media-rating-buttons">
-				<IconButton on:click={() => setRating(0)} active={media.rating === 0}><BadIcon /></IconButton>
-				<IconButton on:click={() => setRating(1)} active={media.rating === 1}><OkIcon /></IconButton>
-				<IconButton on:click={() => setRating(2)} active={media.rating === 2}><GoodIcon /></IconButton>
-				<IconButton on:click={() => setRating(3)} active={media.rating === 3}><GreatIcon /></IconButton>
+				<IconButton on:click={() => setRating(0)} active={media.rating === 0}
+					><BadIcon /></IconButton
+				>
+				<IconButton on:click={() => setRating(1)} active={media.rating === 1}><OkIcon /></IconButton
+				>
+				<IconButton on:click={() => setRating(2)} active={media.rating === 2}
+					><GoodIcon /></IconButton
+				>
+				<IconButton on:click={() => setRating(3)} active={media.rating === 3}
+					><GreatIcon /></IconButton
+				>
 			</div>
 		</div>
 		<textarea bind:value={notes} />
@@ -134,6 +141,7 @@
 
 	.media-content {
 		display: block;
+		margin-left: 0.25em;
 	}
 
 	.media-actions {
@@ -149,7 +157,6 @@
 
 	.media-display {
 		display: inline;
-		margin-left: 0.25em;
 	}
 
 	.media:hover .media-display {

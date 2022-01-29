@@ -50,17 +50,19 @@
 				on:change={todoToggleComplete}
 			/>
 		</div>
-		<div class="todo-display">{todo.description}</div>
-		<div class="todo-tags">
-			{#if !todo.completed && todo.due_date}
-				<Tag
-					value={new Date(todo.due_date)}
-					fg={new Date(todo.due_date) < new Date() ? 'var(--red)' : 'black'}
-				/>
-			{/if}
-			{#if todo.completed && todo.completed_date}
-				<Tag value={new Date(todo.completed_date)} />
-			{/if}
+		<div class="todo-content">
+			<div class="todo-display">{todo.description}</div>
+			<div class="todo-tags">
+				{#if !todo.completed && todo.due_date}
+					<Tag
+						value={new Date(todo.due_date)}
+						fg={new Date(todo.due_date) < new Date() ? 'var(--red)' : 'black'}
+					/>
+				{/if}
+				{#if todo.completed && todo.completed_date}
+					<Tag value={new Date(todo.completed_date)} />
+				{/if}
+			</div>
 		</div>
 		<div class="todo-actions">
 			<IconButton on:click={startEdit} description="Edit todo"><EditIcon /></IconButton>
@@ -88,8 +90,13 @@
 		margin-top: 0.1em;
 	}
 
-	.todo-display {
+	.todo-content {
+		display: block;
 		margin-left: 0.25em;
+	}
+
+	.todo-display {
+		display: inline;
 	}
 
 	.todo-tags {
