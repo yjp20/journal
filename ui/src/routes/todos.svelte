@@ -1,36 +1,35 @@
 <script context="module">
-	import { api } from '$lib/api';
+	import { api } from '$lib/api'
 
 	export async function load({ fetch, session }) {
 		return {
 			props: {
-				initialTodos: await api('GET', fetch, session, 'todo')
+				todos: await api('GET', fetch, session, 'todo')
 			}
-		};
+		}
 	}
 </script>
 
 <script>
-	import { flip } from 'svelte/animate';
-	import Todo from '$lib/Todo.svelte';
-	import TodoEdit from '$lib/TodoEdit.svelte';
+	import { flip } from 'svelte/animate'
+	import Todo from '$lib/Todo.svelte'
+	import TodoEdit from '$lib/TodoEdit.svelte'
 
-	export let initialTodos;
-
-	let todos = initialTodos;
-	let edit = undefined;
+	export let todos
+	let edit = undefined
 
 	$: sorted = todos.sort((a, b) => {
-		if (a.completed !== b.completed) return a.completed - b.completed;
-		if (a.completed_date !== b.completed_date) return new Date(b.completed_date) - new Date(a.completed_date);
-		if (a.cart !== b.cart) return b.cart - a.cart;
+		if (a.completed !== b.completed) return a.completed - b.completed
+		if (a.completed_date !== b.completed_date)
+			return new Date(b.completed_date) - new Date(a.completed_date)
+		if (a.cart !== b.cart) return b.cart - a.cart
 		if (a.due_date !== b.due_date) {
-			const a_date = a.due_date !== null ? new Date(a.due_date) : Infinity;
-			const b_date = b.due_date !== null ? new Date(b.due_date) : Infinity;
-			return a_date - b_date;
+			const a_date = a.due_date !== null ? new Date(a.due_date) : Infinity
+			const b_date = b.due_date !== null ? new Date(b.due_date) : Infinity
+			return a_date - b_date
 		}
-		return a.id - b.id;
-	});
+		return a.id - b.id
+	})
 </script>
 
 <svelte:head>

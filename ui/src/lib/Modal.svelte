@@ -1,11 +1,11 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher } from 'svelte'
 
-	const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher()
 
 	function exit(e) {
-		if (e.currentTarget != e.target) return;
-		dispatch('exit');
+		if (e.currentTarget != e.target) return
+		dispatch('exit')
 	}
 </script>
 

@@ -1,7 +1,7 @@
 <script>
-	export let description;
-	export let type = undefined;
-	export let active = false;
+	export let description
+	export let type = undefined
+	export let active = false
 </script>
 
 <button on:click class="icon-button" class:is-active={active} aria-label={description} {type}>
@@ -15,7 +15,6 @@
 		border: 0;
 		padding: 0;
 		background: none;
-		margin-left: 0.125em;
 		padding: 0.25em;
 		border-radius: 5px;
 	}

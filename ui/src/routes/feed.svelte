@@ -1,8 +1,8 @@
 <script context="module">
-	import { api } from '$lib/api';
+	import { api } from '$lib/api'
 
 	export async function load({ fetch, page, session }) {
-		const dateString = page.query.get("date")
+		const dateString = page.query.get('date')
 		const date = dateString ? new Date(dateString) : new Date()
 		const feedItemPromise = api('GET', fetch, session, 'feed', { end: date.toISOString() })
 		const feedSourcesPromise = api('GET', fetch, session, 'feedsource')
@@ -12,21 +12,21 @@
 				feedItems: await feedItemPromise,
 				feedSources: await feedSourcesPromise
 			}
-		};
+		}
 	}
 </script>
 
 <script>
-	import { startOfDay, startOfWeek, endOfWeek, isSameWeek, addWeeks } from 'date-fns';
-	import { goto } from '$app/navigation';
-	import { session } from '$app/stores';
-	import FeedSource from '$lib/FeedSource.svelte';
-	import IconButton from '$lib/IconButton.svelte';
-	import AddIcon from "$lib/icons/plus.svelte";
+	import { startOfDay, startOfWeek, endOfWeek, isSameWeek, addWeeks } from 'date-fns'
+	import { goto } from '$app/navigation'
+	import { session } from '$app/stores'
+	import FeedSource from '$lib/FeedSource.svelte'
+	import IconButton from '$lib/IconButton.svelte'
+	import AddIcon from '$lib/icons/plus.svelte'
 
-	export let date;
-	export let feedItems;
-	export let feedSources;
+	export let date
+	export let feedItems
+	export let feedSources
 
 	let showSources = false
 
@@ -34,19 +34,19 @@
 		year: 'numeric',
 		month: 'short',
 		day: 'numeric'
-	});
+	})
 
-	const today = new Date();
-	const lastWeek = startOfDay(addWeeks(new Date(), -1));
+	const today = new Date()
+	const lastWeek = startOfDay(addWeeks(new Date(), -1))
 
 	function selectOther() {
-		const ans = prompt('enter date as format MM/DD/YYYY', '');
+		const ans = prompt('enter date as format MM/DD/YYYY', '')
 		if (ans == null) return
 		try {
-			const date = new Date(ans);
+			const date = new Date(ans)
 			goto(formatDateLink(date))
 		} catch (e) {
-			alert("Bad date format")
+			alert('Bad date format')
 		}
 	}
 
@@ -60,7 +60,7 @@
 	}
 
 	async function addToFeed(id) {
-		await api("POST", fetch, $session, "feedsource/add", { id });
+		await api('POST', fetch, $session, 'feedsource/add', { id })
 	}
 </script>
 
@@ -72,16 +72,12 @@
 			{dateFormat.format(startOfWeek(date))} - {dateFormat.format(endOfWeek(date))}
 		</div>
 		<div>
-			<a
-				href="/feed"
-				class="no-link button"
-				class:is-blue={isSameWeek(today, date)}>
-				this week
-			</a>
+			<a href="/feed" class="no-link button" class:is-blue={isSameWeek(today, date)}> this week </a>
 			<a
 				href={formatDateLink(lastWeek)}
 				class="no-link button"
-				class:is-blue={isSameWeek(lastWeek, date)}>
+				class:is-blue={isSameWeek(lastWeek, date)}
+			>
 				last week
 			</a>
 			<button class="button" on:click={selectOther}>other</button>
@@ -93,11 +89,12 @@
 </div>
 
 {#await feedItems then items}
-	{#each items as feedItem}
+	{#each items as feedItem, index}
 		<div class="feeditem">
+			<div class="feeditem-label">{index}.</div>
 			<div class="feeditem-content">
 				<a href={feedItem.related_link} class="feeditem-display">
-					{feedItem.description}{" "}
+					{feedItem.description}{' '}
 					<span class="feeditem-meta">({getHostname(feedItem.related_link)})</span>
 				</a>
 			</div>
@@ -109,7 +106,7 @@
 {/await}
 
 {#if showSources}
-	<FeedSource on:exit={() => (showSources = false)} feedSources={feedSources} />
+	<FeedSource on:exit={() => (showSources = false)} {feedSources} />
 {/if}
 
 <style>
@@ -128,6 +125,15 @@
 		position: relative;
 		display: flex;
 		margin: 0.75rem 0;
+	}
+
+	.feeditem-label {
+		font-size: 0.875rem;
+		display: block;
+		width: 2em;
+		margin-top: 0.1em;
+		color: var(--greydark);
+		flex-shrink: 0;
 	}
 
 	.feeditem-content {

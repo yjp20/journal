@@ -5,7 +5,7 @@
 	import Modal from '$lib/Modal.svelte'
 	import Tag from '$lib/Tag.svelte'
 	import IconButton from '$lib/IconButton.svelte'
-	import Checkbox from '$lib/Checkbox.svelte'
+	import ChecklistItem from '$lib/ChecklistItem.svelte'
 
 	import EditIcon from '$lib/icons/edit.svelte'
 	import DeleteIcon from '$lib/icons/trash.svelte'
@@ -41,6 +41,7 @@
 	async function mediaNotes() {
 		media.notes = notes
 		await api('PUT', fetch, $session, `media/${media.id}`, media)
+		showEditModal = false
 	}
 
 	function mediaEdit() {
@@ -48,8 +49,10 @@
 	}
 
 	function mediaCancel() {
-		notes = media.notes
-		showEditModal = false
+		if (notes == media.notes || confirm('Exit now? You will lose your changes.')) {
+			notes = media.notes
+			showEditModal = false
+		}
 	}
 
 	async function setRating(rating) {
@@ -58,16 +61,10 @@
 	}
 </script>
 
-<div class="media" class:is-completed={media.completed}>
-	<div class="media-toggle">
-		<Checkbox
-			description="Mark media as {media.completed ? 'not done' : 'done'}"
-			checked={media.completed}
-			on:change={mediaToggleComplete}
-		/>
-	</div>
-	<div class="media-content">
-		<p class="media-display">{media.description}</p>
+<ChecklistItem checked={media.completed} on:change={mediaToggleComplete}>
+	{media.description}
+
+	<slot slot="tags">
 		{#if media.related_link}
 			<a class="related_l" href={media.related_link}>&#x1f855;</a>
 		{/if}
@@ -90,33 +87,25 @@
 		{#if media.rating === 3}
 			<Tag value="great" fg="var(--blue-dark)" bg="var(--blue-light)" />
 		{/if}
-	</div>
-	<div class="media-actions">
+	</slot>
+
+	<slot slot="actions">
 		<IconButton on:click={mediaEdit} description="Edit media status"><EditIcon /></IconButton>
 		<IconButton on:click={mediaDelete} description="Delete media"><DeleteIcon /></IconButton>
 		{#if !media.completed}
 			<IconButton on:click={mediaCart} description="Cart media"><CartIcon /></IconButton>
 		{/if}
-	</div>
-</div>
+	</slot>
+</ChecklistItem>
 
 {#if showEditModal}
-	<Modal on:exit={() => (showEditModal = false)}>
-		<div class="media-header">
-			<p class="subtitle is-flat">{media.description}</p>
-			<div class="media-rating-buttons">
-				<IconButton on:click={() => setRating(0)} active={media.rating === 0}
-					><BadIcon /></IconButton
-				>
-				<IconButton on:click={() => setRating(1)} active={media.rating === 1}><OkIcon /></IconButton
-				>
-				<IconButton on:click={() => setRating(2)} active={media.rating === 2}
-					><GoodIcon /></IconButton
-				>
-				<IconButton on:click={() => setRating(3)} active={media.rating === 3}
-					><GreatIcon /></IconButton
-				>
-			</div>
+	<Modal on:exit={mediaCancel}>
+		<p class="subtitle is-flat">{media.description}</p>
+		<div class="paragraph">
+			<IconButton on:click={() => setRating(0)} active={media.rating === 0}><BadIcon /></IconButton>
+			<IconButton on:click={() => setRating(1)} active={media.rating === 1}><OkIcon /></IconButton>
+			<IconButton on:click={() => setRating(2)} active={media.rating === 2}><GoodIcon /></IconButton>
+			<IconButton on:click={() => setRating(3)} active={media.rating === 3}><GreatIcon /></IconButton>
 		</div>
 		<textarea bind:value={notes} />
 		<div class="button-group">
@@ -127,49 +116,12 @@
 {/if}
 
 <style>
-	.media {
-		display: flex;
-	}
-
-	.media.is-completed {
-		opacity: 0.5;
-	}
-
-	.media-toggle {
-		margin-top: 0.1em;
-	}
-
-	.media-content {
-		display: block;
-		margin-left: 0.25em;
-	}
-
-	.media-actions {
-		display: flex;
-		margin-left: auto;
-		opacity: 0;
-		align-self: flex-start;
-	}
-
-	.media:hover .media-actions {
-		opacity: 1;
-	}
-
 	.media-display {
 		display: inline;
-	}
-
-	.media:hover .media-display {
-		text-decoration: underline;
 	}
 
 	.button-group {
 		text-align: right;
 		margin-top: 1em;
-	}
-
-	.media-header {
-		margin-bottom: 1em;
-		justify-content: space-between;
 	}
 </style>

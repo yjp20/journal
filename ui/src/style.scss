@@ -2,16 +2,16 @@ $title-size: 1.5rem;
 $subtitle-size: 1.25rem;
 $breakpoint-gap: 32px;
 
-$breakpoints:   (
-	"big": 900px,
+$breakpoints: (
+	'big': 1000px
 );
 
 $container-override: (
-	"big": 600px,
+	'big': 700px
 );
 
-@import "briefscss/src/init.scss";
-@import "briefscss/src/main.scss";
+@import 'briefscss/src/init.scss';
+@import 'briefscss/src/main.scss';
 
 button {
 	font-size: 0.875rem;

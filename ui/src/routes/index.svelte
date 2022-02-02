@@ -17,7 +17,7 @@
 				{
 					type: 'finish',
 					description: 'Laundry'
-				},
+				}
 			]
 		}
 	]
@@ -27,7 +27,9 @@
 {#each records as record}
 	<div class="record">
 		<div class="record-header">
-			<div class="record-date"><span class="label">{format(new Date(record.date), "d LLL ''yy")}</span></div>
+			<div class="record-date">
+				<span class="label">{format(new Date(record.date), "d LLL ''yy")}</span>
+			</div>
 			<div class="record-desc">{record.description}</div>
 		</div>
 		<ul class="record-events">
@@ -60,5 +62,4 @@
 	.record-event {
 		list-style: disc;
 	}
-
 </style>

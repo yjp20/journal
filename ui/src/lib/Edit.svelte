@@ -1,7 +1,7 @@
 <script context="module">
 	export function getStripped(text, tags) {
-		if (tags === undefined) return text;
-		const chars = text.split('');
+		if (tags === undefined) return text
+		const chars = text.split('')
 
 		for (let tag of Object.values(tags)) {
 			if (tag.start !== undefined && tag.end !== undefined && tag.start < tag.end) {
@@ -14,22 +14,26 @@
 		return chars
 			.filter((v) => v !== undefined)
 			.join('')
-			.trim();
+			.trim()
 	}
 </script>
 
 <script>
-	import IconButton from '$lib/IconButton.svelte';
-	import Tag from './Tag.svelte';
-	import SaveIcon from '$lib/icons/save.svelte';
-	import CancelIcon from '$lib/icons/x.svelte';
+	import { createEventDispatcher } from 'svelte'
 
-	export let text;
-	export let placeholder = undefined;
-	export let tagsPromise = undefined;
-	export let cancel = undefined;
-	export let fg = {};
-	export let bg = {};
+	const dispatch = createEventDispatcher()
+
+	import IconButton from '$lib/IconButton.svelte'
+	import Tag from './Tag.svelte'
+	import SaveIcon from '$lib/icons/save.svelte'
+	import CancelIcon from '$lib/icons/x.svelte'
+
+	export let text
+	export let placeholder = undefined
+	export let tagsPromise = undefined
+	export let cancel = false
+	export let fg = {}
+	export let bg = {}
 </script>
 
 <form class="edit" on:submit>
@@ -42,14 +46,14 @@
 				{:then tags}
 					{#if Object.keys(tags).length > 0}
 						{#each Object.entries(tags) as tag}
-							<Tag fg={fg[tag[0]]} bg={bg[tag[0]]} value={tag[1].value} />
+							<Tag fg={fg[tag[0]]} bg={bg[tag[0]]} value={tag[1].display || tag[1].value} />
 						{/each}
 					{/if}
 				{/await}
 			{/if}
 		</div>
 		{#if cancel}
-			<IconButton type="button" on:click={cancel} description={'Cancel'}><CancelIcon /></IconButton>
+			<IconButton type="button" on:click={() => dispatch('cancel')} description={'Cancel'}><CancelIcon /></IconButton>
 		{/if}
 		<IconButton description={'Create'}><SaveIcon /></IconButton>
 	</div>

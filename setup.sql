@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS todos (
 	completed BOOLEAN NOT NULL,
 	progress FLOAT NOT NULL,
 
-	recur TEXT,
+	recur INT,
 	due_date TIMESTAMP(0),
 	completed_date TIMESTAMP(0),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

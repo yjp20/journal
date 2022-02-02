@@ -1,6 +1,6 @@
 <script>
-	export let checked;
-	export let description = undefined;
+	export let checked
+	export let description = undefined
 </script>
 
 <label class="checkbox">
@@ -12,39 +12,33 @@
 		on:click
 		bind:checked
 	/>
-	<div class="checkbox-checkmark">✓</div>
+	<div class="checkbox-mark"></div>
 </label>
 
 <style>
-	.checkbox {
+	.checkbox-mark {
 		position: relative;
-		width: 0.9em;
-		height: 0.9em;
+		display: inline-block;
+		width: 0.9rem;
+		height: 0.9rem;
 		color: inherit;
+		outline: 2px solid white;
+		outline-offset: -3px;
 		border: 1px solid currentColor;
-		border-radius: 999px;
+		border-radius: 4px;
 		box-sizing: border-box;
+		transition: 0.1s border-width ease;
 	}
 
-	.checkbox:hover {
-		background-color: #f9f9f9;
+	.checkbox:hover > .checkbox-mark {
+		border-width: 0.45rem;
+	}
+
+	:checked + .checkbox-mark {
+		border-width: 0.45rem;
 	}
 
 	.checkbox-input {
 		display: none;
-	}
-
-	.checkbox-checkmark {
-		opacity: 0;
-		font-size: 0.6em;
-		text-align: center;
-	}
-
-	:checked + .checkbox-checkmark {
-		opacity: 1;
-	}
-
-	.checkbox:hover .checkbox-checkmark {
-		opacity: 0.5;
 	}
 </style>
