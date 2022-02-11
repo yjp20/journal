@@ -1,12 +1,14 @@
 <script>
+	import { format, formatRelative } from 'date-fns'
+
 	export let fg = undefined
 	export let bg = '#eee'
 	export let value = undefined
 </script>
 
-<div class="tag" style="color: {fg}; background-color: {bg}">
+<div class="tag" title={value instanceof Date ? format(value, "P p") : undefined} style="color: {fg}; background-color: {bg}">
 	{#if value instanceof Date}
-		{new Intl.DateTimeFormat('en-US').format(value)}
+		{formatRelative(value, new Date())}
 	{:else}
 		{value.length > 20 ? `${value.substr(0, 30)}...` : value}
 	{/if}

@@ -50,6 +50,12 @@
 		todo.cart = todo.cart ? false : true
 		await api('PUT', fetch, $session, `todo/${todo.id}`, todo)
 	}
+
+	function dueColor(date) {
+		if (new Date(date) < new Date()) return { fg: 'var(--white)', bg: 'var(--red)' }
+		if (new Date(date) < addDays(new Date(), 1)) return { fg: 'var(--white)', bg: 'var(--orange)' }
+		if (new Date(date) > addDays(new Date(), 7)) return { fg: 'var(--grey)', bg: 'var(--light)' }
+	}
 </script>
 
 {#if edit === todo.id}
@@ -62,10 +68,10 @@
 
 		<slot slot="tags">
 			{#if !todo.completed && todo.due_date}
-				<Tag value={new Date(todo.due_date)} fg={new Date(todo.due_date) < new Date() ? 'var(--red)' : 'black'} />
+				<Tag value={new Date(todo.due_date)} {...dueColor(todo.due_date)} />
 			{/if}
 			{#if todo.recur}
-				<Tag value="↻ {todo.recur % 7 == 0 ? `${todo.recur/7} week` : `${todo.recur} days`}" />
+				<Tag value="↻ {todo.recur % 7 == 0 ? `${todo.recur / 7} week` : `${todo.recur} days`}" />
 			{/if}
 			{#if todo.completed && todo.completed_date}
 				<Tag value={new Date(todo.completed_date)} />

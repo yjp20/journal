@@ -37,7 +37,7 @@ export async function api(method, fetch, session, resource, data) {
 		throw new Error((await res.json()).error)
 	}
 
-	if (method.toLowerCase() !== 'delete') {
+	if (method.toLowerCase() !== 'delete' && method.toLowerCase() !== 'put') {
 		let v
 		try {
 			v = await res.json()

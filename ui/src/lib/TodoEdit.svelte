@@ -13,13 +13,19 @@
 			tags['private'] = { value: 'private' }
 		}
 
-		const dates = chrono.parse(text, new Date(), { forwardDate: true })
-		if (dates.length !== 0) {
-			const date = dates[0]
+		const parsedDates = chrono.parse(text, new Date(), { forwardDate: true })
+		if (parsedDates.length !== 0) {
+			const parsedDate = parsedDates[0]
+			const component = parsedDate.start
+			component.impliedValues["hour"] = 23
+			component.impliedValues["minute"] = 59
+			component.impliedValues["second"] = 0
+			component.impliedValues["milisecond"] = 0
+
 			tags['due_date'] = {
-				value: date.date(),
-				start: date.index,
-				end: date.index + date.text.length
+				value: component.date(),
+				start: parsedDate.index,
+				end: parsedDate.index + parsedDate.text.length
 			}
 		}
 
