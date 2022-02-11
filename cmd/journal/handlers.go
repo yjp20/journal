@@ -471,6 +471,7 @@ func (a *App) updateTodo(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	todo.DueDate = input.DueDate
 	todo.CompletedDate = input.CompletedDate
 	todo.Private = input.Private
+	todo.Recur = input.Recur
 
 	err = a.Models.Todo.Update(todo)
 	if err != nil {
