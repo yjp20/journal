@@ -65,7 +65,7 @@
 				<Tag value={new Date(todo.due_date)} fg={new Date(todo.due_date) < new Date() ? 'var(--red)' : 'black'} />
 			{/if}
 			{#if todo.recur}
-				<Tag value="repeats after {todo.recur} days" />
+				<Tag value="↻ {todo.recur % 7 == 0 ? `${todo.recur/7} week` : `${todo.recur} days`}" />
 			{/if}
 			{#if todo.completed && todo.completed_date}
 				<Tag value={new Date(todo.completed_date)} />
