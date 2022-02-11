@@ -101,18 +101,19 @@ func (a *App) getFeed(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 
 	qs := r.URL.Query()
 	input.Start, _ = a.readOptionalTime(qs, "start")
-	input.End, _ = a.readOptionalTime(qs, "start")
+	input.End, _ = a.readOptionalTime(qs, "end")
 
-	var start, end time.Time
 	if input.End == nil {
-		end = time.Now()
+		t := time.Now()
+		input.End = &t
 	}
 
 	if input.Start == nil {
-		start = end.AddDate(0, 0, -7)
+		t := input.End.AddDate(0, 0, -7)
+		input.Start = &t
 	}
 
-	feedItems, err := a.Models.FeedItem.GetAll(start, end)
+	feedItems, err := a.Models.FeedItem.GetAll(*input.Start, *input.End)
 	if err != nil {
 		a.serverErrorResponse(w, r, err)
 		return
@@ -191,6 +192,14 @@ func (a *App) linkMedia(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 	}
 
 	output.MediaType = "articles"
+
+	if matched, _ := regexp.MatchString(`^https://www.goodreads.com/book`, input.Link); matched {
+		output.MediaType = "book"
+	}
+
+	if matched, _ := regexp.MatchString(`^https://www.imdb.com/title`, input.Link); matched {
+		output.MediaType = "movie"
+	}
 
 	if matched, _ := regexp.MatchString(`^https://myanimelist.net/anime`, input.Link); matched {
 		output.MediaType = "anime"

@@ -4,7 +4,6 @@ import (
 	"os/exec"
 	"strings"
 	"time"
-	"fmt"
 
 	readability "github.com/go-shiori/go-readability"
 	"github.com/mmcdole/gofeed"
@@ -42,10 +41,7 @@ func (a *App) syncReadableMedia() error {
 		return err
 	}
 	for _, item := range media {
-		fmt.Printf("%v+\n", item)
 		if item.Cart && item.MediaType == "article" {
-			println("download")
-			println(item.Description)
 			link := item.RelatedLink
 			article, err := readability.FromURL(*link, 30*time.Second)
 			if err != nil {

@@ -1,5 +1,5 @@
 <script>
-	import { api } from '$lib/api'
+	import { api, requireAuth } from '$lib/api'
 	import { session } from '$app/stores'
 
 	import Modal from '$lib/Modal.svelte'
@@ -22,11 +22,13 @@
 	let showEditModal = false
 
 	async function mediaDelete() {
+		if (requireAuth($session)) return;
 		await api('DELETE', fetch, $session, `media/${media.id}`)
 		mediaList = mediaList.filter((v) => v.id != media.id)
 	}
 
 	async function mediaToggleComplete(e) {
+		if (requireAuth($session)) return;
 		media.completed = e.currentTarget.checked
 		media.cart = false
 		media.completed_date = media.completed ? new Date() : null
@@ -34,21 +36,25 @@
 	}
 
 	async function mediaCart() {
+		if (requireAuth($session)) return;
 		media.cart = media.cart ? false : true
 		await api('PUT', fetch, $session, `media/${media.id}`, media)
 	}
 
 	async function mediaNotes() {
+		if (requireAuth($session)) return;
 		media.notes = notes
 		await api('PUT', fetch, $session, `media/${media.id}`, media)
 		showEditModal = false
 	}
 
 	function mediaEdit() {
+		if (requireAuth($session)) return;
 		showEditModal = true
 	}
 
 	function mediaCancel() {
+		if (requireAuth($session)) return;
 		if (notes == media.notes || confirm('Exit now? You will lose your changes.')) {
 			notes = media.notes
 			showEditModal = false

@@ -12,6 +12,7 @@
 
 <script>
 	import { flip } from 'svelte/animate'
+	import { session } from '$app/stores'
 	import Todo from '$lib/Todo.svelte'
 	import TodoEdit from '$lib/TodoEdit.svelte'
 
@@ -20,8 +21,7 @@
 
 	$: sorted = todos.sort((a, b) => {
 		if (a.completed !== b.completed) return a.completed - b.completed
-		if (a.completed_date !== b.completed_date)
-			return new Date(b.completed_date) - new Date(a.completed_date)
+		if (a.completed_date !== b.completed_date) return new Date(b.completed_date) - new Date(a.completed_date)
 		if (a.cart !== b.cart) return b.cart - a.cart
 		if (a.due_date !== b.due_date) {
 			const a_date = a.due_date !== null ? new Date(a.due_date) : Infinity
@@ -37,9 +37,11 @@
 </svelte:head>
 
 <h1 class="title">todos</h1>
-<div class="todonew">
-	<TodoEdit bind:todos />
-</div>
+{#if $session.token}
+	<div class="todonew">
+		<TodoEdit bind:todos />
+	</div>
+{/if}
 {#if sorted.length > 0 && !sorted[0].cart}
 	<p class="paragraph"><em>No todos in cart</em></p>
 {/if}
@@ -48,8 +50,7 @@
 		animate:flip={{ duration: 100 }}
 		class:is-completed={todo.completed}
 		class:is-cart={todo.cart}
-		class="todo-animate todo-wrapper"
-	>
+		class="todo-animate todo-wrapper">
 		<Todo bind:todos bind:todo bind:edit />
 	</div>
 {/each}

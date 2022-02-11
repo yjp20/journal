@@ -6,7 +6,7 @@
 		for (let tag of Object.values(tags)) {
 			if (tag.start !== undefined && tag.end !== undefined && tag.start < tag.end) {
 				for (let i = tag.start; i < tag.end; i++) {
-					chars[i] = undefined;
+					chars[i] = undefined
 				}
 			}
 		}
@@ -46,7 +46,7 @@
 				{:then tags}
 					{#if Object.keys(tags).length > 0}
 						{#each Object.entries(tags) as tag}
-							<Tag fg={fg[tag[0]]} bg={bg[tag[0]]} value={tag[1].display || tag[1].value} />
+							<Tag fg={fg[tag[0]]} bg={bg[tag[0]]} value={tag[1].display || tag[1].value} />{' '}
 						{/each}
 					{/if}
 				{/await}

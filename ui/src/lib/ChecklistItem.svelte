@@ -1,15 +1,12 @@
 <script>
 	import Checkbox from '$lib/Checkbox.svelte'
+	import { session } from '$app/stores'
 	export let checked
 </script>
 
-<div class="checklistitem" class:is-completed={checked} >
+<div class="checklistitem" class:is-completed={checked}>
 	<div class="checklistitem-toggle">
-		<Checkbox
-			description="Mark as {checked ? 'not done' : 'done'}"
-			checked={checked}
-			on:change
-		/>
+		<Checkbox description="Mark as {checked ? 'not done' : 'done'}" {checked} on:change />
 	</div>
 	<div class="checklistitem-content">
 		<div class="checklistitem-description">
@@ -18,7 +15,9 @@
 		<slot name="tags" />
 	</div>
 	<div class="checklistitem-actions">
-		<slot name="actions" />
+		{#if $session.token}
+			<slot name="actions" />
+		{/if}
 	</div>
 </div>
 
@@ -58,5 +57,4 @@
 	.checklistitem:hover .checklistitem-actions {
 		opacity: 1;
 	}
-
 </style>

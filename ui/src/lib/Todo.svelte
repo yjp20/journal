@@ -1,7 +1,7 @@
 <script>
 	import { addDays } from 'date-fns'
 
-	import { api } from '$lib/api'
+	import { api, requireAuth } from '$lib/api'
 	import { session } from '$app/stores'
 
 	import Tag from '$lib/Tag.svelte'
@@ -18,15 +18,18 @@
 	export let edit = undefined
 
 	function startEdit() {
+		if (requireAuth($session)) return;
 		edit = todo.id
 	}
 
 	async function todoDelete() {
+		if (requireAuth($session)) return;
 		await api('DELETE', fetch, $session, `todo/${todo.id}`)
 		todos = todos.filter((v) => v.id != todo.id)
 	}
 
 	async function todoToggleComplete(e) {
+		if (requireAuth($session)) return;
 		if (todo.recur) {
 			todos = [
 				...todos,
@@ -47,6 +50,7 @@
 	}
 
 	async function todoCart() {
+		if (requireAuth($session)) return;
 		todo.cart = todo.cart ? false : true
 		await api('PUT', fetch, $session, `todo/${todo.id}`, todo)
 	}

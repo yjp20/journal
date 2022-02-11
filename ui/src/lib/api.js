@@ -47,3 +47,11 @@ export async function api(method, fetch, session, resource, data) {
 		return v
 	}
 }
+
+export function requireAuth(session) {
+	if (!session.token) {
+		alert('This function requires a login!')
+		return true
+	}
+	return false
+}

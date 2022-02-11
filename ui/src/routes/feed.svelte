@@ -1,10 +1,11 @@
 <script context="module">
-	import { api } from '$lib/api'
+	import { api, requireAuth } from '$lib/api'
+	import { startOfDay, startOfWeek, endOfWeek, isSameWeek, addWeeks } from 'date-fns'
 
 	export async function load({ fetch, page, session }) {
 		const dateString = page.query.get('date')
 		const date = dateString ? new Date(dateString) : new Date()
-		const feedItemPromise = api('GET', fetch, session, 'feed', { end: date.toISOString() })
+		const feedItemPromise = api('GET', fetch, session, 'feed', { end: endOfWeek(date).toISOString() })
 		const feedSourcesPromise = api('GET', fetch, session, 'feedsource')
 		return {
 			props: {
@@ -17,7 +18,6 @@
 </script>
 
 <script>
-	import { startOfDay, startOfWeek, endOfWeek, isSameWeek, addWeeks } from 'date-fns'
 	import { goto } from '$app/navigation'
 	import { session } from '$app/stores'
 	import FeedSource from '$lib/FeedSource.svelte'
@@ -60,6 +60,7 @@
 	}
 
 	async function addToFeed(id) {
+		if (requireAuth($session)) return
 		await api('POST', fetch, $session, 'feedsource/add', { id })
 	}
 </script>
@@ -73,19 +74,15 @@
 		</div>
 		<div>
 			<a href="/feed" class="no-link button" class:is-blue={isSameWeek(today, date)}> this week </a>
-			<a
-				href={formatDateLink(lastWeek)}
-				class="no-link button"
-				class:is-blue={isSameWeek(lastWeek, date)}
-			>
+			<a href={formatDateLink(lastWeek)} class="no-link button" class:is-blue={isSameWeek(lastWeek, date)}>
 				last week
 			</a>
 			<button class="button" on:click={selectOther}>other</button>
 		</div>
 	</div>
-	<button class="button is-black" style="margin-left: auto" on:click={() => (showSources = true)}>
-		sources
-	</button>
+	{#if $session.token}
+		<button class="button is-black" style="margin-left: auto" on:click={() => (showSources = true)}> sources </button>
+	{/if}
 </div>
 
 {#await feedItems then items}
@@ -130,10 +127,12 @@
 	.feeditem-label {
 		font-size: 0.875rem;
 		display: block;
-		width: 2em;
+		width: 2.5em;
 		margin-top: 0.1em;
+		margin-right: 0.25em;
 		color: var(--greydark);
 		flex-shrink: 0;
+		text-align: right;
 	}
 
 	.feeditem-content {

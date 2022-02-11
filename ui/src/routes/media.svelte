@@ -1,5 +1,5 @@
 <script context="module">
-	import { api } from '$lib/api'
+	import { api, requireAuth } from '$lib/api'
 	import Media from '$lib/Media.svelte'
 
 	export async function load({ fetch, session }) {
@@ -33,6 +33,7 @@
 
 	async function createMedia(e) {
 		e.preventDefault()
+		if (requireAuth($session)) return;
 		const tags = await tagsPromise
 		if (!text) return
 		let media = {
@@ -101,9 +102,11 @@
 </script>
 
 <h1 class="title">media</h1>
-<div class="mediaadd">
-	<Edit placeholder="Media description or url" on:submit={createMedia} bind:text {tagsPromise} />
-</div>
+{#if $session.token}
+	<div class="mediaadd">
+		<Edit placeholder="Media description or url" on:submit={createMedia} bind:text {tagsPromise} />
+	</div>
+{/if}
 
 {#if sorted.length > 0 && !sorted[0].cart}
 	<p class="paragraph"><em>No media in cart</em></p>
