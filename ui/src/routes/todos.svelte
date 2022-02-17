@@ -15,6 +15,7 @@
 	import { session } from '$app/stores'
 	import Todo from '$lib/Todo.svelte'
 	import TodoEdit from '$lib/TodoEdit.svelte'
+	import { format, isSameDay } from 'date-fns'
 
 	export let todos
 	let edit = undefined
@@ -45,14 +46,17 @@
 {#if sorted.length > 0 && !sorted[0].cart}
 	<p class="paragraph"><em>No todos in cart</em></p>
 {/if}
-{#each sorted as todo (todo.id)}
-	<div
+{#each sorted as todo, index (todo.id)}
+	<li
 		animate:flip={{ duration: 100 }}
 		class:is-completed={todo.completed}
 		class:is-cart={todo.cart}
-		class="todo-animate todo-wrapper">
+		class="todo-wrapper">
+		{#if todo.completed_date && (index == 0 || !isSameDay(new Date(todo.completed_date), new Date(sorted[index - 1].completed_date)))}
+			<div class="todo-date label">{format(new Date(todo.completed_date), "MMM. d")}</div>
+		{/if}
 		<Todo bind:todos bind:todo bind:edit />
-	</div>
+	</li>
 {/each}
 
 <style>
@@ -71,4 +75,19 @@
 	.todonew {
 		margin-bottom: 1.5em;
 	}
+
+	.todo-wrapper {
+		position: relative;
+		list-style: none;
+	}
+
+	.todo-date {
+		position: absolute;
+		width: 3rem;
+		left: -3.50rem;
+		margin-top: 0.1rem;
+		border-top: 1px solid var(--grey);
+		text-align: right;
+	}
+
 </style>
