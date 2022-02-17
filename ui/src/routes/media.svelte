@@ -20,9 +20,11 @@
 	export let mediaList
 	let text = ''
 	let linkCache = {}
+	let focus = undefined
 
 	const linkRegex = /https?:\/\/[.\/\-a-zA-Z0-9\_]*/
 	const mediaTypes = [
+		[/:article/, 'article'],
 		[/:game/, 'game'],
 		[/:book/, 'book'],
 		[/:movie/, 'movie'],
@@ -33,7 +35,7 @@
 
 	async function createMedia(e) {
 		e.preventDefault()
-		if (requireAuth($session)) return;
+		if (requireAuth($session)) return
 		const tags = await tagsPromise
 		if (!text) return
 		let media = {
@@ -52,10 +54,10 @@
 		return (linkCache[link] = await api('POST', fetch, $session, 'media/link', { link }))
 	}
 
-	async function getTags(text) {
+	async function getTags(text, focus) {
 		const newTags = {}
 		newTags['media_type'] = {
-			value: 'articles',
+			value: focus || 'article',
 			start: 0,
 			end: 0
 		}
@@ -86,11 +88,10 @@
 		return newTags
 	}
 
-	$: tagsPromise = getTags(text)
+	$: tagsPromise = getTags(text, focus)
 	$: sorted = mediaList.sort((a, b) => {
 		if (a.completed !== b.completed) return a.completed - b.completed
-		if (a.completed_date !== b.completed_date)
-			return new Date(b.completed_date) - new Date(a.completed_date)
+		if (a.completed_date !== b.completed_date) return new Date(b.completed_date) - new Date(a.completed_date)
 		if (a.cart !== b.cart) return b.cart - a.cart
 		if (a.due_date !== b.due_date) {
 			const a_date = a.due_date !== null ? new Date(a.due_date) : Infinity
@@ -98,10 +99,19 @@
 			return a_date - b_date
 		}
 		return a.id - b.id
-	})
+	}).filter((v) => focus == undefined || focus == v.media_type)
 </script>
 
 <h1 class="title">media</h1>
+<div class="paragraph">
+	{#each mediaTypes as type}
+		<button
+			class="button"
+			class:is-black={focus == type[1]}
+			on:click={() => (focus = focus == type[1] ? undefined : type[1])}>{type[1]}</button
+		>{' '}
+	{/each}
+</div>
 {#if $session.token}
 	<div class="mediaadd">
 		<Edit placeholder="Media description or url" on:submit={createMedia} bind:text {tagsPromise} />
@@ -117,8 +127,7 @@
 		animate:flip={{ duration: 100 }}
 		class="media-wrapper"
 		class:is-completed={media.completed}
-		class:is-cart={media.cart}
-	>
+		class:is-cart={media.cart}>
 		<Media bind:mediaList bind:media />
 	</div>
 {/each}
