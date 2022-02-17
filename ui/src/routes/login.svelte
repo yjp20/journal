@@ -14,7 +14,6 @@
 	import { session } from '$app/stores'
 	import { api, NetworkError } from '$lib/api'
 	import { root } from '$lib/config'
-	import '../style.scss'
 
 	let password = ''
 	let passwordError = ''
@@ -49,82 +48,27 @@
 	}
 </script>
 
-<div class="layout">
-	<div class="side">
-		<h1><b>journal</b></h1>
-		<nav class="sidenav">
-			<li class="sidenav-item"><a href="/">dashboard</a></li>
-			<li class="sidenav-item"><a href="/todos">todos</a></li>
-			<li class="sidenav-item"><a href="/media">media</a></li>
-			<li class="sidenav-item"><a href="/feed">feed</a></li>
-			<li class="sidenav-item"><a href="/graph">graph</a></li>
-			<li class="sidenav-item"><a href="/login">login</a></li>
-		</nav>
-	</div>
-	<main class="container">
-		<slot />
-	</main>
-</div>
-
-<style>
-	:global(body) {
-		line-height: 1.5;
-	}
-
-	.layout {
-		display: flex;
-		min-height: 100vh;
-		padding: 2rem 0;
-		box-sizing: border-box;
-	}
-
-	.side {
-		padding: 0 2rem;
-		width: 10rem;
-		flex-shrink: 0;
-	}
-
-	.sidenav {
-		margin-top: 0.5rem;
-		margin-bottom: 1rem;
-	}
-
-	.sidenav-item {
-		list-style: none;
-	}
-
-	.sidenav-item a {
-		color: inherit;
-	}
-
-	@media screen and (max-width: 800px) {
-		.layout {
-			display: block;
-		}
-
-		.side {
-			display: flex;
-			width: unset;
-			margin-bottom: 3em;
-		}
-
-		.sidenav {
-			display: block;
-			flex: 1;
-			margin: 0 0.3em;
-		}
-
-		.sidenav-item {
-			display: inline-block;
-			margin-left: 0.5em;
-		}
-
-		.sidenav a {
-			display: inline;
-		}
-
-		:global(.aside) {
-			display: none;
-		}
-	}
-</style>
+{#if $session.token}
+	<form class="login box is-vertical" class:is-loggedin={Boolean($session.token)} on:submit={check}>
+		<p class="paragraph">Logged in!</p>
+		<p class="paragraph">
+			<button class="button">Check</button>
+		</p>
+		{#if checkMessage}
+			<p class="label">{checkMessage}</p>
+		{/if}
+	</form>
+{:else}
+	<form class="login box is-vertical" class:is-loggedin={Boolean($session.token)} on:submit={login}>
+		<div class="field">
+			<label class="label" for="password">Password:</label>
+			<input class="input" name="password" type="password" bind:value={password} />
+			{#if passwordError}
+				<p class="label">{passwordError}</p>
+			{/if}
+		</div>
+		<div class="field">
+			<button class="button">Login</button>
+		</div>
+	</form>
+{/if}

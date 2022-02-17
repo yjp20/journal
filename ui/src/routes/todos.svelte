@@ -53,7 +53,7 @@
 		class:is-cart={todo.cart}
 		class="todo-wrapper">
 		{#if todo.completed_date && (index == 0 || !isSameDay(new Date(todo.completed_date), new Date(sorted[index - 1].completed_date)))}
-			<div class="todo-date label">{format(new Date(todo.completed_date), "MMM. d")}</div>
+			<div class="todo-date label aside">{format(new Date(todo.completed_date), "MMM. d")}</div>
 		{/if}
 		<Todo bind:todos bind:todo bind:edit />
 	</li>
@@ -86,8 +86,10 @@
 		width: 3rem;
 		left: -3.50rem;
 		margin-top: 0.1rem;
-		border-top: 1px solid var(--grey);
+		border-top: 1px solid var(--black);
 		text-align: right;
+		color: var(--black);
+		opacity: 0.5;
 	}
 
 </style>

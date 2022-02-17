@@ -88,7 +88,7 @@
 {#await feedItems then items}
 	{#each items as feedItem, index}
 		<li class="feeditem">
-			<div class="feeditem-label">{index}.</div>
+			<div class="feeditem-label aside">{index}.</div>
 			<div class="feeditem-content">
 				<a href={feedItem.related_link} class="feeditem-display">
 					{feedItem.description}{' '}
@@ -128,7 +128,6 @@
 		position: absolute;
 		left: -2.75em;
 		font-size: 0.875rem;
-		display: block;
 		width: 2.5em;
 		margin-top: 0.1em;
 		color: var(--greydark);
