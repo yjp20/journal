@@ -71,8 +71,12 @@
 	{media.description}
 
 	<slot slot="tags">
+
 		{#if media.related_link}
-			<a class="related_l" href={media.related_link}>&#x1f855;</a>
+			<a class="related_link" href={media.related_link}>&#x1f855;</a>
+		{/if}
+		{#if media.comments}
+			<a class="comments" href={media.comments}>&#x1F4AC;</a>
 		{/if}
 		<Tag value={media.media_type} />
 		{#if media.completed && media.completed_date}

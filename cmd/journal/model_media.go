@@ -14,6 +14,7 @@ type Media struct {
 	Rating        *float32   `json:"rating"`
 	Notes         *string    `json:"notes"`
 	RelatedLink   *string    `json:"related_link"`
+	Comments      *string    `json:"comments"`
 	Cart          bool       `json:"cart"`
 	Completed     bool       `json:"completed"`
 	Progress      float64    `json:"progress"`
@@ -28,10 +29,10 @@ type MediaModel struct {
 
 func (m MediaModel) Insert(media *Media) error {
 	query := `
-		INSERT INTO media (description, media_type, related_link, cart, completed, progress)
-		VALUES ($1, $2, $3, false, false, 0)
+		INSERT INTO media (description, media_type, related_link, comments, cart, completed, progress)
+		VALUES ($1, $2, $3, $4, false, false, 0)
 		RETURNING id, created_at, updated_at`
-	return m.DB.QueryRow(query, media.Description, media.MediaType, media.RelatedLink).Scan(&media.ID, &media.CreatedAt, &media.UpdatedAt)
+	return m.DB.QueryRow(query, media.Description, media.MediaType, media.RelatedLink, media.Comments).Scan(&media.ID, &media.CreatedAt, &media.UpdatedAt)
 }
 
 func (m MediaModel) Get(id int64) (*Media, error) {
@@ -43,6 +44,7 @@ func (m MediaModel) Get(id int64) (*Media, error) {
 			rating,
 			notes,
 			related_link,
+			comments,
 			cart,
 			completed,
 			progress,
@@ -61,6 +63,7 @@ func (m MediaModel) Get(id int64) (*Media, error) {
 		&media.Rating,
 		&media.Notes,
 		&media.RelatedLink,
+		&media.Comments,
 		&media.Cart,
 		&media.Completed,
 		&media.Progress,
@@ -90,6 +93,7 @@ func (m MediaModel) GetAll() ([]*Media, error) {
 			rating,
 			notes,
 			related_link,
+			comments,
 			cart,
 			completed,
 			progress,
@@ -118,6 +122,7 @@ func (m MediaModel) GetAll() ([]*Media, error) {
 			&media.Rating,
 			&media.Notes,
 			&media.RelatedLink,
+			&media.Comments,
 			&media.Cart,
 			&media.Completed,
 			&media.Progress,
@@ -147,11 +152,12 @@ func (m MediaModel) Update(media *Media) error {
 			rating = $3,
 			notes = $4,
 			related_link = $5,
-			cart = $6,
-			completed = $7,
-			progress = $8,
-			completed_date = $9
-		WHERE id = $10`
+			comments = $6,
+			cart = $7,
+			completed = $8,
+			progress = $9,
+			completed_date = $10
+		WHERE id = $11`
 
 	_, err := m.DB.Exec(
 		query,
@@ -160,6 +166,7 @@ func (m MediaModel) Update(media *Media) error {
 		&media.Rating,
 		&media.Notes,
 		&media.RelatedLink,
+		&media.Comments,
 		&media.Cart,
 		&media.Completed,
 		&media.Progress,

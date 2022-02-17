@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS media (
 	rating FLOAT,
 	notes TEXT,
 	related_link TEXT,
+	comments TEXT,
 	completed_date TIMESTAMP(0),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -39,6 +40,7 @@ CREATE TABLE IF NOT EXISTS feed_items (
 	id BIGSERIAL PRIMARY KEY NOT NULL,
 	description TEXT NOT NULL,
 	related_link TEXT NOT NULL UNIQUE,
+	comments TEXT,
 	media_type TEXT NOT NULL,
 	added BOOLEAN NOT NULL,
 	source_id BIGSERIAL,

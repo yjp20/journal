@@ -16,15 +16,22 @@ func (a *App) compileRSS() error {
 	}
 
 	fp := gofeed.NewParser()
+	fp.RSSTranslator = &CustomRSSTranslator{}
 	for _, source := range sources {
 		feed, err := fp.ParseURL(source.URL)
 		if err != nil {
 			return err
 		}
 		for _, item := range feed.Items {
+			var comments *string
+			if len(item.Custom["Comments"]) != 0 {
+				c := item.Custom["Comments"]
+				comments = &c
+			}
 			a.Models.FeedItem.Insert(&FeedItem{
 				Description: item.Title,
 				RelatedLink: &item.Link,
+				Comments:    comments,
 				SourceID:    source.ID,
 				MediaType:   "article",
 				PostDate:    *item.PublishedParsed,
@@ -47,7 +54,7 @@ func (a *App) syncReadableMedia() error {
 			if err != nil {
 				continue
 			}
-			cmd := exec.Command("pandoc", "-o", item.Description + ".pdf")
+			cmd := exec.Command("pandoc", "-o", item.Description+".pdf")
 			cmd.Stdin = strings.NewReader(article.Content)
 			err = cmd.Run()
 			if err != nil {

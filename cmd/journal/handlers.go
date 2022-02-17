@@ -164,6 +164,7 @@ func (a *App) addToMedia(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		Description: feedItem.Description,
 		MediaType:   feedItem.MediaType,
 		RelatedLink: feedItem.RelatedLink,
+		Comments:    feedItem.Comments,
 	})
 }
 

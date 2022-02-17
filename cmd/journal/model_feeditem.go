@@ -11,6 +11,7 @@ type FeedItem struct {
 	Description string    `json:"description"`
 	MediaType   string    `json:"media_type"`
 	RelatedLink *string   `json:"related_link"`
+	Comments    *string   `json:"comments"`
 	SourceID    int64     `json:"source_id"`
 	Added       bool      `json:"added"`
 	PostDate    time.Time `json:"created_at"`
@@ -27,6 +28,7 @@ func (m FeedItemModel) Get(id int) (*FeedItem, error) {
 			description,
 			media_type,
 			related_link,
+			comments,
 			source_id,
 			post_date,
 			added
@@ -36,17 +38,17 @@ func (m FeedItemModel) Get(id int) (*FeedItem, error) {
 
 	f := &FeedItem{}
 	row := m.DB.QueryRow(query, id)
-	err := row.Scan(&f.ID, &f.Description, &f.MediaType, &f.RelatedLink, &f.SourceID, &f.PostDate, &f.PostDate)
+	err := row.Scan(&f.ID, &f.Description, &f.MediaType, &f.RelatedLink, &f.Comments, &f.SourceID, &f.PostDate, &f.PostDate)
 	return f, err
 }
 
 func (m FeedItemModel) Insert(feedItem *FeedItem) error {
 	query := `
-		INSERT INTO feed_items (description, media_type, related_link, source_id, post_date, added)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO feed_items (description, media_type, related_link, comments, source_id, post_date, added)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		ON CONFLICT (related_link) DO NOTHING
 		RETURNING id`
-	return m.DB.QueryRow(query, feedItem.Description, feedItem.MediaType, feedItem.RelatedLink, feedItem.SourceID, feedItem.PostDate, feedItem.Added).Scan(&feedItem.ID)
+	return m.DB.QueryRow(query, feedItem.Description, feedItem.MediaType, feedItem.RelatedLink, feedItem.Comments, feedItem.SourceID, feedItem.PostDate, feedItem.Added).Scan(&feedItem.ID)
 }
 
 func (m FeedItemModel) GetAll(start time.Time, end time.Time) ([]*FeedItem, error) {
@@ -56,6 +58,7 @@ func (m FeedItemModel) GetAll(start time.Time, end time.Time) ([]*FeedItem, erro
 			description,
 			media_type,
 			related_link,
+			comments,
 			source_id,
 			post_date,
 			added
@@ -81,6 +84,7 @@ func (m FeedItemModel) GetAll(start time.Time, end time.Time) ([]*FeedItem, erro
 			&feedItem.Description,
 			&feedItem.MediaType,
 			&feedItem.RelatedLink,
+			&feedItem.Comments,
 			&feedItem.SourceID,
 			&feedItem.PostDate,
 			&feedItem.Added,
