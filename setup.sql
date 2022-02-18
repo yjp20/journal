@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS todos (
 	cart BOOLEAN NOT NULL,
 	completed BOOLEAN NOT NULL,
 	progress FLOAT NOT NULL,
+	blocked BOOLEAN NOT NULL,
 
 	recur INT,
 	due_date TIMESTAMP(0),

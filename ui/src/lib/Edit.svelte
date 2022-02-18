@@ -46,7 +46,9 @@
 				{:then tags}
 					{#if Object.keys(tags).length > 0}
 						{#each Object.entries(tags) as tag}
-							<Tag fg={fg[tag[0]]} bg={bg[tag[0]]} value={tag[1].display || tag[1].value} />{' '}
+							{#if tag[1] && tag[1].value}
+								<Tag fg={fg[tag[0]]} bg={bg[tag[0]]} value={tag[1].display || tag[0]} />{' '}
+							{/if}
 						{/each}
 					{/if}
 				{/await}

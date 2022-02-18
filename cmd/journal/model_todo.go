@@ -12,13 +12,14 @@ type Todo struct {
 	Description   string     `json:"description"`
 	Cart          bool       `json:"cart"`
 	Completed     bool       `json:"completed"`
+	Blocked       bool       `json:"blocked"`
 	Progress      float64    `json:"progress"`
 	DueDate       *time.Time `json:"due_date"`
 	CompletedDate *time.Time `json:"completed_date"`
 	CreatedAt     time.Time  `json:"created_at"`
 	UpdatedAt     time.Time  `json:"updated_at"`
 	Private       bool       `json:"private"`
-	Recur         *int        `json:"recur"`
+	Recur         *int       `json:"recur"`
 }
 
 type TodoModel struct {
@@ -27,14 +28,15 @@ type TodoModel struct {
 
 func (m TodoModel) Insert(todo *Todo) error {
 	query := `
-		INSERT INTO todos (description, due_date, cart, completed, progress, private, recur)
-		VALUES ($1, $2, false, false, 0, $3, $4)
+		INSERT INTO todos (description, due_date, cart, completed, progress, private, blocked, recur)
+		VALUES ($1, $2, false, false, 0, $3, $4, $5)
 		RETURNING id, created_at, updated_at`
 	return m.DB.QueryRow(
 		query,
 		todo.Description,
 		todo.DueDate,
 		todo.Private,
+		todo.Blocked,
 		todo.Recur,
 	).Scan(
 		&todo.ID,
@@ -56,6 +58,7 @@ func (m TodoModel) Get(id int64) (*Todo, error) {
 			created_at,
 			updated_at,
 			private,
+			blocked,
 			recur
 		FROM todos
 		WHERE id = $1`
@@ -73,6 +76,7 @@ func (m TodoModel) Get(id int64) (*Todo, error) {
 		&todo.CreatedAt,
 		&todo.UpdatedAt,
 		&todo.Private,
+		&todo.Blocked,
 		&todo.Recur,
 	)
 
@@ -101,6 +105,7 @@ func (m TodoModel) GetAll() ([]*Todo, error) {
 			created_at,
 			updated_at,
 			private,
+			blocked,
 			recur
 		FROM todos
 		ORDER BY id`
@@ -128,6 +133,7 @@ func (m TodoModel) GetAll() ([]*Todo, error) {
 			&todo.CreatedAt,
 			&todo.UpdatedAt,
 			&todo.Private,
+			&todo.Blocked,
 			&todo.Recur,
 		)
 		if err != nil {
@@ -154,8 +160,9 @@ func (m TodoModel) Update(todo *Todo) error {
 			due_date = $5,
 			completed_date = $6,
 			private = $7,
-			recur = $8
-		WHERE id = $9`
+			blocked = $8,
+			recur = $9
+		WHERE id = $10`
 
 	_, err := m.DB.Exec(
 		query,
@@ -166,6 +173,7 @@ func (m TodoModel) Update(todo *Todo) error {
 		&todo.DueDate,
 		&todo.CompletedDate,
 		&todo.Private,
+		&todo.Blocked,
 		&todo.Recur,
 		&todo.ID,
 	)

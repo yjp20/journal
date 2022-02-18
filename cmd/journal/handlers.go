@@ -413,6 +413,7 @@ func (a *App) createTodo(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		Description string     `json:"description"`
 		DueDate     *time.Time `json:"due_date"`
 		Private     bool       `json:"private"`
+		Blocked     bool       `json:"blocked"`
 		Recur       *int       `json:"recur"`
 	}
 
@@ -426,6 +427,7 @@ func (a *App) createTodo(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	todo.Description = input.Description
 	todo.DueDate = input.DueDate
 	todo.Private = input.Private
+	todo.Blocked = input.Blocked
 	todo.Recur = input.Recur
 	err = a.Models.Todo.Insert(&todo)
 	if err != nil {
@@ -481,6 +483,7 @@ func (a *App) updateTodo(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	todo.DueDate = input.DueDate
 	todo.CompletedDate = input.CompletedDate
 	todo.Private = input.Private
+	todo.Blocked = input.Blocked
 	todo.Recur = input.Recur
 
 	err = a.Models.Todo.Update(todo)

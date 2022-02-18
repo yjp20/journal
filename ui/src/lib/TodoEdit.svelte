@@ -1,38 +1,54 @@
 <script context="module">
-	const privateRegex = /:private/
-	const recurRegex = /:recur:(\d+)/
+	const blockedRegex = /[!]?blocked/
+	const privateRegex = /[!]?private/
+	const recurRegex = /[!]?recur(?::(\d+))?/
 
 	function getTags(todo, text) {
 		const tags = {}
 
 		if (todo && todo.due_date) {
-			tags['due_date'] = { value: new Date(todo.due_date) }
+			const date = new Date(todo.due_date)
+			tags['due_date'] = { display: date, value: date }
 		}
 
 		if (todo && todo.private) {
-			tags['private'] = { value: 'private' }
+			tags['private'] = { value: true }
+		}
+
+		if (todo && todo.blocked) {
+			tags['blocked'] = { value: true }
 		}
 
 		const parsedDates = chrono.parse(text, new Date(), { forwardDate: true })
 		if (parsedDates.length !== 0) {
 			const parsedDate = parsedDates[0]
 			const component = parsedDate.start
-			component.impliedValues["hour"] = 23
-			component.impliedValues["minute"] = 59
-			component.impliedValues["second"] = 0
-			component.impliedValues["milisecond"] = 0
+			component.impliedValues['hour'] = 23
+			component.impliedValues['minute'] = 59
+			component.impliedValues['second'] = 0
+			component.impliedValues['milisecond'] = 0
 
 			tags['due_date'] = {
 				value: component.date(),
+				display: component.date(),
 				start: parsedDate.index,
 				end: parsedDate.index + parsedDate.text.length
+			}
+		}
+
+		const blockedMatches = text.match(blockedRegex)
+		if (blockedMatches) {
+			tags['blocked'] = {
+				value: blockedMatches[0][0] != '!',
+				start: blockedMatches.index,
+				end: blockedMatches.index + blockedMatches[0].length
 			}
 		}
 
 		const privateMatches = text.match(privateRegex)
 		if (privateMatches) {
 			tags['private'] = {
-				value: 'private',
+				value: privateMatches[0][0] != '!',
 				start: privateMatches.index,
 				end: privateMatches.index + privateMatches[0].length
 			}
@@ -86,12 +102,14 @@
 		const todoDiff = {
 			description: getStripped(text, tags),
 			due_date: tags['due_date'] ? tags['due_date'].value : undefined,
-			private: tags['private'] !== undefined,
-			recur: tags['recur']?.value
+			private: !!tags['private']?.value,
+			blocked: !!tags['blocked']?.value,
+			recur: tags['recur']?.value == 0 ? undefined : tags['recur']?.value
 		}
 
 		if (todo !== undefined) {
-			todo = { ...todo, ...todoDiff }
+			Object.assign(todo, todoDiff)
+			todo = todo
 			if (todo.recur && !todo.due_date) {
 				todo.recur = undefined
 			}

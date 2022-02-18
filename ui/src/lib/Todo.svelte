@@ -71,6 +71,12 @@
 		{todo.description}
 
 		<slot slot="tags">
+			{#if todo.private}
+				<Tag value={"private"} />
+			{/if}
+			{#if todo.blocked}
+				<Tag value={"blocked"} />
+			{/if}
 			{#if !todo.completed && todo.due_date}
 				<Tag value={new Date(todo.due_date)} {...dueColor(todo.due_date)} />
 			{/if}
