@@ -86,7 +86,6 @@
 		width: 3rem;
 		left: -3.50rem;
 		margin-top: 0.1rem;
-		border-top: 1px solid var(--black);
 		text-align: right;
 		color: var(--black);
 		opacity: 0.5;
