@@ -4,7 +4,7 @@
 	export let records = [
 		{
 			date: date.toString(),
-			description: 'drew a dick on the wall',
+			description: 'drew a drawing :D on the wall',
 			events: [
 				{
 					type: 'finish',
