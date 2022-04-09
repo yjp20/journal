@@ -51,6 +51,34 @@ func (m FeedItemModel) Insert(feedItem *FeedItem) error {
 	return m.DB.QueryRow(query, feedItem.Description, feedItem.MediaType, feedItem.RelatedLink, feedItem.Comments, feedItem.SourceID, feedItem.PostDate, feedItem.Added).Scan(&feedItem.ID)
 }
 
+func (m FeedItemModel) Update(feedItem *FeedItem) error {
+	query := `
+		UPDATE feed_items
+		SET
+			description = $2,
+			media_type = $3,
+			related_link = $4,
+			comments = $5,
+			source_id = $6,
+			post_date = $7,
+			added = $8
+		WHERE id = $1`
+
+	_, err := m.DB.Exec(
+		query,
+		feedItem.ID,
+		feedItem.Description,
+		feedItem.MediaType,
+		feedItem.RelatedLink,
+		feedItem.Comments,
+		feedItem.SourceID,
+		feedItem.PostDate,
+		feedItem.Added,
+	)
+
+	return err
+}
+
 func (m FeedItemModel) GetAll(start time.Time, end time.Time) ([]*FeedItem, error) {
 	query := `
 		SELECT

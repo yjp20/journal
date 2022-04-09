@@ -10,8 +10,8 @@
 		return {
 			props: {
 				date: date,
-				feedItems: await feedItemPromise,
-				feedSources: await feedSourcesPromise
+				items: await feedItemPromise,
+				sources: await feedSourcesPromise
 			}
 		}
 	}
@@ -25,8 +25,8 @@
 	import AddIcon from '$lib/icons/plus.svelte'
 
 	export let date
-	export let feedItems
-	export let feedSources
+	export let items
+	export let sources
 
 	let showSources = false
 
@@ -61,6 +61,8 @@
 
 	async function addToFeed(id) {
 		if (requireAuth($session)) return
+		const index = items.findIndex(item => item.id === id)
+		items[index].added = true
 		await api('POST', fetch, $session, 'feedsource/add', { id })
 	}
 </script>
@@ -85,25 +87,25 @@
 	{/if}
 </div>
 
-{#await feedItems then items}
-	{#each items as feedItem, index}
-		<li class="feeditem">
-			<div class="feeditem-label aside">{index}.</div>
-			<div class="feeditem-content">
-				<a href={feedItem.related_link} class="feeditem-display">
-					{feedItem.description}{' '}
-					<span class="feeditem-meta">({getHostname(feedItem.related_link)})</span>
-				</a>
-			</div>
-			<div class="feeditem-actions">
-				<IconButton on:click={() => addToFeed(feedItem.id)}><AddIcon /></IconButton>
-			</div>
-		</li>
-	{/each}
-{/await}
+{#each items as item, index}
+	<li class="feeditem" class:is-added={item.added}>
+		<div class="feeditem-label aside">{index}.</div>
+		<div class="feeditem-content">
+			<a href={item.related_link} class="feeditem-display">
+				{item.description}{' '}
+				<span class="feeditem-meta">({getHostname(item.related_link)})</span>
+			</a>
+		</div>
+		<div class="feeditem-actions">
+			{#if !item.added}
+				<IconButton on:click={() => addToFeed(item.id)}><AddIcon /></IconButton>
+			{/if}
+		</div>
+	</li>
+{/each}
 
 {#if showSources}
-	<FeedSource on:exit={() => (showSources = false)} {feedSources} />
+	<FeedSource on:exit={() => (showSources = false)} feedSources={sources} />
 {/if}
 
 <style>
@@ -122,6 +124,10 @@
 		position: relative;
 		display: flex;
 		margin: 0.25rem 0;
+	}
+
+	.feeditem.is-added {
+		font-weight: bold;
 	}
 
 	.feeditem-label {

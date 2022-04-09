@@ -160,6 +160,8 @@ func (a *App) addToMedia(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	}
 
 	feedItem, err := a.Models.FeedItem.Get(input.ID)
+	feedItem.Added = true
+	a.Models.FeedItem.Update(feedItem)
 	a.Models.Media.Insert(&Media{
 		Description: feedItem.Description,
 		MediaType:   feedItem.MediaType,
